@@ -1,8 +1,12 @@
 package com.ziyuan;
 
+import com.google.common.reflect.TypeToken;
+import com.ziyuan.delegate.RetryDelegate;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.lang.reflect.Type;
 
 /**
  * Unit test for simple App.

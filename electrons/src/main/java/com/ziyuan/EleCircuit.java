@@ -4,6 +4,7 @@ import com.ziyuan.events.Electron;
 import com.ziyuan.exceptions.CircuitCongestedException;
 import com.ziyuan.util.ClassUtil;
 import lombok.Setter;
+import org.apache.commons.collections.MultiMap;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,6 +73,9 @@ public final class EleCircuit {
         return false;
     }
 
+    /**
+     * 扫描监听器
+     */
     private void scan() {
         // 扫描注解
         Set<Class<?>> clazzSet = ClassUtil.scanPackageByAnnotation(conf.getScanPackage(), conf.isScanJar(), Listener.class);

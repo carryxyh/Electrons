@@ -17,6 +17,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public final class ClassUtil {
+
     private static Logger logger = LoggerFactory.getLogger(ClassUtil.class);
 
     /**
@@ -47,11 +48,9 @@ public final class ClassUtil {
         }
     };
 
-
     // 静态类不可实例化
     private ClassUtil() {
     }
-
 
     /**
      * 扫描指定包路径下所有包含指定注解的类

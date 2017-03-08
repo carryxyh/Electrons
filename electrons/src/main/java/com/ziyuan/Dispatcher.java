@@ -1,5 +1,9 @@
 package com.ziyuan;
 
+import com.ziyuan.channel.Channel;
+
+import java.util.List;
+
 /**
  * Dispatcher 分发器，用来把任务放到各个channel中
  *
@@ -8,7 +12,13 @@ package com.ziyuan;
  */
 public final class Dispatcher {
 
-    public void dispatch(){
+    private List<Channel> channels;
 
+    public void dispatch() {
+
+    }
+
+    private Channel selectOne() {
+        return null;
     }
 }

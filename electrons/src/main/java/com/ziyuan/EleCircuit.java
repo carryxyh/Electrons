@@ -1,5 +1,8 @@
 package com.ziyuan;
 
+import com.ziyuan.events.Electron;
+import com.ziyuan.exceptions.CircuitCongestedException;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -20,7 +23,52 @@ public final class EleCircuit {
      */
     private AtomicBoolean started;
 
-    public boolean start() {
+    /**
+     * 配置
+     */
+    private Config conf = new Config();
+
+    /**
+     * 启动
+     *
+     * @return
+     */
+    public synchronized boolean start() {
         return false;
+    }
+
+    /**
+     * 发布事件（异步）
+     *
+     * @param tag      tag
+     * @param electron 事件
+     * @throws CircuitCongestedException 异常
+     */
+    public void publish(String tag, Electron electron) throws CircuitCongestedException {
+
+    }
+
+    /**
+     * 同步调用
+     *
+     * @param tag      tag
+     * @param electron 事件
+     * @throws CircuitCongestedException 异常
+     */
+    public void publishSync(String tag, Electron electron) throws CircuitCongestedException {
+
+    }
+
+    /**
+     * 停止
+     *
+     * @return
+     */
+    public synchronized boolean stop() {
+        return false;
+    }
+
+    private void scan() {
+
     }
 }

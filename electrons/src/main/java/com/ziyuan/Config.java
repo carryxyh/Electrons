@@ -29,6 +29,16 @@ public final class Config {
     private int circuitLen = 2 << 10;
 
     /**
+     * 默认扫所有
+     */
+    private String scanPackage = "";
+
+    /**
+     * 默认不扫描jar包
+     */
+    private boolean scanJar = false;
+
+    /**
      * 消费组的数量
      */
     private int workers = 8;

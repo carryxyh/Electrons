@@ -39,7 +39,7 @@ public abstract class Electron extends EventObject {
         return weight;
     }
 
-    public final void setWeight(int weight) {
+    protected final void setWeight(int weight) {
         this.weight = weight;
     }
 }

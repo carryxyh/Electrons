@@ -2,7 +2,10 @@ package com.ziyuan;
 
 import com.ziyuan.events.Electron;
 import com.ziyuan.exceptions.CircuitCongestedException;
+import com.ziyuan.util.ClassUtil;
+import lombok.Setter;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -26,6 +29,7 @@ public final class EleCircuit {
     /**
      * 配置
      */
+    @Setter
     private Config conf = new Config();
 
     /**
@@ -69,6 +73,7 @@ public final class EleCircuit {
     }
 
     private void scan() {
-
+        // 扫描注解
+        Set<Class<?>> clazzSet = ClassUtil.scanPackageByAnnotation(conf.getScanPackage(), conf.isScanJar(), Listener.class);
     }
 }

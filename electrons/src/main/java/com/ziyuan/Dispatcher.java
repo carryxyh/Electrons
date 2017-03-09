@@ -1,10 +1,15 @@
 package com.ziyuan;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.ziyuan.chain.ListenerChain;
+import com.ziyuan.chain.ListenerChainBuilder;
 import com.ziyuan.channel.Channel;
 import com.ziyuan.events.Electron;
 import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +31,7 @@ public final class Dispatcher {
     /**
      * 通道
      */
-    private List<Channel> channel;
+    private List<Channel> channelList;
 
     /**
      * disruptor
@@ -36,7 +41,7 @@ public final class Dispatcher {
     /**
      * wrapper map
      */
-    private Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap;
+    private ListMultimap<ElectronsWrapper, ListenerChain> chainMap;
 
 
     public void start() {
@@ -47,8 +52,15 @@ public final class Dispatcher {
 
     }
 
-    public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap) {
-        this.wrapperMap = wrapperMap;
+    public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap, Config config) {
+        chainMap = ArrayListMultimap.create();
+        for (Map.Entry<ElectronsWrapper, ListenerCollectWrapper> entry : wrapperMap.entrySet()) {
+            List<ListenerChain> cs = ListenerChainBuilder.build(entry.getValue());
+            for (ListenerChain lc : cs) {
+                chainMap.put(entry.getKey(), lc);
+            }
+        }
+        //初始化channels
     }
 
     public void dispatch() {
@@ -57,10 +69,22 @@ public final class Dispatcher {
     }
 
     private Channel selectOne() {
+        if (CollectionUtils.isNotEmpty(channelList)) {
+            if (channelList.size() == 1) {
+                return channelList.get(0);
+            } else {
+                //根据hashCode散列到list中
+            }
+        }
         return null;
     }
 
+    /**
+     * 分发
+     *
+     * @param wrapper 事件的wrapper
+     */
     public void dispatch(ElectronsWrapper wrapper) {
-
+        List<ListenerChain> chains = chainMap.get(wrapper);
     }
 }

@@ -34,7 +34,7 @@ public final class EleCircuit {
     /**
      * 是否启动中
      */
-    private AtomicBoolean started;
+    private AtomicBoolean started = new AtomicBoolean(false);
 
     /**
      * 配置
@@ -58,6 +58,13 @@ public final class EleCircuit {
         }
         dispatcher.start();
         started.set(true);
+        //添加钩子
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                stop();
+            }
+        }));
         return true;
     }
 
@@ -88,7 +95,17 @@ public final class EleCircuit {
      * @throws CircuitCongestedException 异常
      */
     public boolean publishSync(String tag, Electron electron) throws CircuitCongestedException {
-        return false;
+        if (!started.get()) {
+            return false;
+        }
+        if (electron == null) {
+            throw new NullPointerException("Electron can not be null !");
+        }
+        ElectronsWrapper wrapper = new ElectronsWrapper(tag, electron.getClass());
+        //设置同步
+        wrapper.setSync(true);
+        dispatcher.dispatch();
+        return true;
     }
 
     /**
@@ -97,6 +114,10 @@ public final class EleCircuit {
      * @return
      */
     public synchronized boolean stop() {
+        started.set(false);
+        if (dispatcher != null) {
+            dispatcher.stop();
+        }
         return false;
     }
 
@@ -141,13 +162,13 @@ public final class EleCircuit {
         if (dispatcher != null) {
             dispatcher.stop();
         }
-        dispatcher = new Dispatcher(wrapperMap);
+        dispatcher = new Dispatcher(wrapperMap, conf);
     }
 
     /**
      * 对监听器进行排序
      *
-     * @param listenerClazz
+     * @param listenerClazz listener的集合
      */
     public void sort(List<Class<? extends ElectronsListener>> listenerClazz) {
         Collections.sort(listenerClazz, new Comparator<Class<? extends ElectronsListener>>() {

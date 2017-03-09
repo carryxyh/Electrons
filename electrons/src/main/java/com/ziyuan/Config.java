@@ -39,11 +39,6 @@ public final class Config {
     private boolean scanJar = false;
 
     /**
-     * 消费组的数量
-     */
-    private int workers = 8;
-
-    /**
      * channel的数量，大于1的时候则类似rocketmq的queue模型
      */
     private int channels = 1;

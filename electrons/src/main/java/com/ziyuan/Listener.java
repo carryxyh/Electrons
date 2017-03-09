@@ -43,7 +43,7 @@ public @interface Listener {
      *
      * @return 该listener是否同步执行
      */
-    boolean async() default false;
+    boolean sync() default false;
 
     /**
      * 订阅的类型

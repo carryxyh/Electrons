@@ -14,6 +14,7 @@ public interface ElectronsListener<E extends Electron> {
      * 处理事件
      *
      * @param electrons 电子
+     * @throws Exception 处理过程中的异常，比较建议抛出，方便熔断
      */
-    void onEvent(E electrons);
+    void onEvent(E electrons) throws Exception;
 }

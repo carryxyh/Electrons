@@ -1,6 +1,7 @@
 package com.ziyuan.chain;
 
 import com.ziyuan.ElectronsListener;
+import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public final class ListenerChain {
     /**
      * 是否有后置节点
      */
+    @Getter
     private boolean hasBefore;
 
     public ListenerChain(ElectronsListener me) {

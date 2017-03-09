@@ -11,6 +11,7 @@ import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,20 +61,24 @@ public final class Dispatcher {
                 chainMap.put(entry.getKey(), lc);
             }
         }
-        //初始化channels
+        //根据config中channel的数量，初始化channels
+        channelList = new ArrayList<>(config.getChannels());
     }
 
-    public void dispatch() {
-        //包装一下放到channel中
-        Channel channel = selectOne();
-    }
-
-    private Channel selectOne() {
+    /**
+     * 根据事件找到一个channel，这里用的是hashCode取余数，相同的事件会被放到相同的channel中处理
+     *
+     * @param wrapper wrapper
+     * @return 根据wrapper选中的channel
+     */
+    private Channel selectOne(ElectronsWrapper wrapper) {
         if (CollectionUtils.isNotEmpty(channelList)) {
             if (channelList.size() == 1) {
                 return channelList.get(0);
             } else {
                 //根据hashCode散列到list中
+                int hash = wrapper.hashCode();
+                return channelList.get(hash % channelList.size());
             }
         }
         return null;
@@ -86,5 +91,7 @@ public final class Dispatcher {
      */
     public void dispatch(ElectronsWrapper wrapper) {
         List<ListenerChain> chains = chainMap.get(wrapper);
+        //包装一下放到channel中
+        Channel channel = selectOne(wrapper);
     }
 }

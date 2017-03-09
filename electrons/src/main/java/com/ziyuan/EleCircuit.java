@@ -104,7 +104,7 @@ public final class EleCircuit {
         ElectronsWrapper wrapper = new ElectronsWrapper(tag, electron.getClass());
         //设置同步
         wrapper.setSync(true);
-        dispatcher.dispatch();
+        dispatcher.dispatch(wrapper);
         return true;
     }
 

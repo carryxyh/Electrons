@@ -51,9 +51,24 @@ public final class Config {
     private boolean limitRate = false;
 
     /**
+     * 是否预热
+     */
+    private boolean warmup = false;
+
+    /**
+     * 预热1分钟
+     */
+    private int warmupPeriod = 1;
+
+    /**
+     * 默认单位分钟，默认预热1分钟
+     */
+    private TimeUnit warmPeriodUnit = TimeUnit.MINUTES;
+
+    /**
      * 每秒64个令牌
      */
-    private int threshold = 2 << 5;
+    private double threshold = 2 << 5;
 
     /*------------------------------------熔断相关 默认：每两分钟内出现5个错误，就休息3分钟---------------------------------------*/
 

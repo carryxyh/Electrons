@@ -4,6 +4,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.channel.Channel;
 import com.ziyuan.events.Electron;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -22,7 +23,7 @@ public final class Dispatcher {
     /**
      * 通道
      */
-    private Channel channel;
+    private List<Channel> channel;
 
     /**
      * disruptor
@@ -31,5 +32,9 @@ public final class Dispatcher {
 
     public void dispatch() {
 
+    }
+
+    private Channel selectOne() {
+        return null;
     }
 }

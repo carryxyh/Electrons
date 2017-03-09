@@ -2,6 +2,7 @@ package com.ziyuan.events;
 
 import com.ziyuan.ElectronsListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,12 +16,16 @@ public class ListenerCollectWrapper {
     /**
      * 监听器集合
      */
-    private List<ElectronsListener> electronsListeners;
+    private List<ElectronsListener> electronsListeners = new ArrayList<>();
 
     /**
      * 是否存在有after逻辑
      */
     private boolean hasAfterLis;
+
+    public void addListener(ElectronsListener listener) {
+        this.electronsListeners.add(listener);
+    }
 
     public List<ElectronsListener> getElectronsListeners() {
         return electronsListeners;

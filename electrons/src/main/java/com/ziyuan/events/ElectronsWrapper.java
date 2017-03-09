@@ -20,7 +20,7 @@ public final class ElectronsWrapper {
      */
     private Type source;
 
-    public ElectronsWrapper(String tag, Class source) {
+    public ElectronsWrapper(String tag, Type source) {
         this.tag = tag;
         this.source = source;
     }

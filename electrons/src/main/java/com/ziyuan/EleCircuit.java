@@ -8,6 +8,7 @@ import com.ziyuan.exceptions.CircuitCongestedException;
 import com.ziyuan.util.ClassUtil;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,7 @@ public final class EleCircuit {
     /**
      * 扫描监听器
      */
-    private void scan() {
+    private void scan() throws Exception {
         // 扫描注解
         Set<Class<?>> clazzSet = ClassUtil.scanPackageByAnnotation(conf.getScanPackage(), conf.isScanJar(), Listener.class);
         if (CollectionUtils.isEmpty(clazzSet)) {
@@ -100,14 +101,29 @@ public final class EleCircuit {
         sort(allListeners);
         Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap = new HashMap<>();
         for (Class<? extends ElectronsListener> clazz : allListeners) {
-            TypeToken<Class<? extends ElectronsListener>> token = new TypeToken<Class<? extends ElectronsListener>>() {};
+            TypeToken<Class<? extends ElectronsListener>> token = new TypeToken<Class<? extends ElectronsListener>>() {
+            };
             TypeToken<?> generic = token.resolveType(clazz.getTypeParameters()[0]);
             Type type = generic.getType();
+
+            Listener ann = clazz.getAnnotation(Listener.class);
+            String tag = ann.subscribe();
+
+            ElectronsWrapper eleWrapper = new ElectronsWrapper(tag, type);
+            ListenerCollectWrapper listenerWrapper = wrapperMap.get(eleWrapper);
+            if (listenerWrapper == null) {
+                listenerWrapper = new ListenerCollectWrapper();
+            }
+            listenerWrapper.addListener(clazz.newInstance());
+            if (StringUtils.isNotBlank(ann.after())) {
+                //如果不为空，有after逻辑
+                listenerWrapper.setHasAfterLis(true);
+            }
         }
     }
 
     /**
-     * 对监听器进行排序，如果hasAfterlis = false的情况下
+     * 对监听器进行排序
      *
      * @param listenerClazz
      */

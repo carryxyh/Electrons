@@ -43,6 +43,11 @@ public final class Config {
      */
     private int workers = 8;
 
+    /**
+     * channel的数量，大于1的时候则类似rocketmq的queue模型
+     */
+    private int channels = 1;
+
     /*------------------------------------限流相关---------------------------------------*/
 
     /**

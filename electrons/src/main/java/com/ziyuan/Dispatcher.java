@@ -3,8 +3,11 @@ package com.ziyuan;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.channel.Channel;
 import com.ziyuan.events.Electron;
+import com.ziyuan.events.ElectronsWrapper;
+import com.ziyuan.events.ListenerCollectWrapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -30,11 +33,34 @@ public final class Dispatcher {
      */
     private Disruptor<Electron> disruptor;
 
-    public void dispatch() {
+    /**
+     * wrapper map
+     */
+    private Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap;
 
+
+    public void start() {
+
+    }
+
+    public void stop() {
+
+    }
+
+    public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap) {
+        this.wrapperMap = wrapperMap;
+    }
+
+    public void dispatch() {
+        //包装一下放到channel中
+        Channel channel = selectOne();
     }
 
     private Channel selectOne() {
         return null;
+    }
+
+    public void dispatch(ElectronsWrapper wrapper) {
+
     }
 }

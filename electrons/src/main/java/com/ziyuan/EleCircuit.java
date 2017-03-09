@@ -48,7 +48,17 @@ public final class EleCircuit {
      * @return
      */
     public synchronized boolean start() {
-        return false;
+        if (started.get()) {
+            logger.error("Circuit is running !");
+        }
+        try {
+            scan();
+        } catch (Exception e) {
+            logger.error("Scan crash!", e);
+        }
+        dispatcher.start();
+        started.set(true);
+        return true;
     }
 
     /**
@@ -58,8 +68,16 @@ public final class EleCircuit {
      * @param electron 事件
      * @throws CircuitCongestedException 异常
      */
-    public void publish(String tag, Electron electron) throws CircuitCongestedException {
-
+    public boolean publish(String tag, Electron electron) throws Exception {
+        if (!started.get()) {
+            return false;
+        }
+        if (electron == null) {
+            throw new NullPointerException("Electron can not be null !");
+        }
+        ElectronsWrapper wrapper = new ElectronsWrapper(tag, electron.getClass());
+        dispatcher.dispatch(wrapper);
+        return true;
     }
 
     /**
@@ -69,8 +87,8 @@ public final class EleCircuit {
      * @param electron 事件
      * @throws CircuitCongestedException 异常
      */
-    public void publishSync(String tag, Electron electron) throws CircuitCongestedException {
-
+    public boolean publishSync(String tag, Electron electron) throws CircuitCongestedException {
+        return false;
     }
 
     /**
@@ -120,6 +138,10 @@ public final class EleCircuit {
                 listenerWrapper.setHasAfterLis(true);
             }
         }
+        if (dispatcher != null) {
+            dispatcher.stop();
+        }
+        dispatcher = new Dispatcher(wrapperMap);
     }
 
     /**

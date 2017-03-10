@@ -2,28 +2,29 @@ package com.ziyuan.channel;
 
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.ziyuan.ElectronsHolder;
 import com.ziyuan.chain.ListenerChain;
 import com.ziyuan.events.Electron;
 
 import java.util.Collection;
 
 /**
- * SpecChannel 特殊管道，用于处理after逻辑
+ * NormalChannel
  *
  * @author ziyuan
  * @since 2017-03-10
  */
-public class SpecChannel extends AbstractChannel {
+public class NormalChannel extends AbstractChannel {
 
     /**
      * disruptor
      */
-    private Disruptor<Electron> disruptor;
+    private Disruptor<ElectronsHolder> disruptor;
 
     /**
-     * after逻辑电路
+     * 正常逻辑的电路
      */
-    private RingBuffer<Electron> circuit;
+    private RingBuffer<ElectronsHolder> circuit;
 
     @Override
     public void open(Collection<ListenerChain> chains) {
@@ -32,8 +33,7 @@ public class SpecChannel extends AbstractChannel {
 
     @Override
     public void close() {
-        disruptor.shutdown();
-        disruptor = null;
+
     }
 
     @Override
@@ -42,12 +42,12 @@ public class SpecChannel extends AbstractChannel {
     }
 
     @Override
-    public void handle() {
+    public void publish(String tag, Electron electron) {
 
     }
 
     @Override
-    public void publish(String tag, Electron electron) {
+    public void handle() {
 
     }
 }

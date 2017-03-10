@@ -41,6 +41,14 @@ public final class Dispatcher {
      */
     private static final String SPEC_CHANNEL_PREFIX = "spec_channel:";
 
+    /**
+     * normal channel的key
+     */
+    private static final String NORMAL_CHANNEL_KEY = "normal_channel:";
+
+    /**
+     * config
+     */
     private Config conf;
 
     public void start() {
@@ -90,7 +98,7 @@ public final class Dispatcher {
     }
 
     /**
-     * 根据事件找到一个channel，这里用的是hashCode取余数，相同的事件会被放到相同的channel中处理
+     * 根据事件找到一个channel
      *
      * @param wrapper wrapper
      * @return 根据wrapper选中的channel

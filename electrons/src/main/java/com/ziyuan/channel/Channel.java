@@ -32,10 +32,10 @@ public interface Channel {
     /**
      * 发布事件
      *
-     * @param source
+     * @param tag
      * @param electron
      */
-    void publish(String source, Electron electron);
+    void publish(String tag, Electron electron);
 
     /**
      * 直接处理

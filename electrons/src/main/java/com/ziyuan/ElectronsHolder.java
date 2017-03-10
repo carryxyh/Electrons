@@ -12,8 +12,14 @@ import java.util.List;
  */
 public final class ElectronsHolder {
 
+    /**
+     * 电子
+     */
     private Electron electron;
 
+    /**
+     * 要执行的监听器，这里已经排好序了
+     */
     private List<ElectronsListener> listeners;
 
     public ElectronsHolder(Electron electron, List<ElectronsListener> listeners) {

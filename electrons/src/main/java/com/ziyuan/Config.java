@@ -24,7 +24,7 @@ public final class Config {
     private boolean async = true;
 
     /**
-     * 默认2左移十位 2048
+     * 默认2左移十位 512
      */
     private int circuitLen = 2 << 8;
 

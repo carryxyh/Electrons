@@ -26,7 +26,7 @@ public final class Config {
     /**
      * 默认2左移十位 2048
      */
-    private int circuitLen = 2 << 10;
+    private int circuitLen = 2 << 8;
 
     /**
      * 默认扫所有

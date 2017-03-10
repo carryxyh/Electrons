@@ -65,4 +65,12 @@ public final class ElectronsWrapper {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ElectronsWrapper{" +
+                "tag='" + tag + '\'' +
+                ", source=" + source +
+                '}';
+    }
 }

@@ -9,9 +9,7 @@ import com.ziyuan.channel.Channel;
 import com.ziyuan.events.Electron;
 import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
-import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,7 +30,7 @@ public final class Dispatcher {
     /**
      * 通道
      */
-    private List<Channel> channelList;
+    private Map<String, Channel> channelMap;
 
     /**
      * disruptor
@@ -44,9 +42,16 @@ public final class Dispatcher {
      */
     private ListMultimap<ElectronsWrapper, ListenerChain> chainMap;
 
+    /**
+     * 针对有after逻辑的特殊管道
+     */
+    private static final String SPEC_CHANNEL_PREFIX = "spec_channel:";
+
+    private Config conf;
 
     public void start() {
-
+        //根据config中channel的数量，初始化channels
+        initChannel(conf);
     }
 
     public void stop() {
@@ -61,8 +66,11 @@ public final class Dispatcher {
                 chainMap.put(entry.getKey(), lc);
             }
         }
-        //根据config中channel的数量，初始化channels
-        channelList = new ArrayList<>(config.getChannels());
+        this.conf = config;
+    }
+
+    private void initChannel(Config config) {
+
     }
 
     /**
@@ -72,15 +80,6 @@ public final class Dispatcher {
      * @return 根据wrapper选中的channel
      */
     private Channel selectOne(ElectronsWrapper wrapper) {
-        if (CollectionUtils.isNotEmpty(channelList)) {
-            if (channelList.size() == 1) {
-                return channelList.get(0);
-            } else {
-                //根据hashCode散列到list中
-                int hash = wrapper.hashCode();
-                return channelList.get(hash % channelList.size());
-            }
-        }
         return null;
     }
 

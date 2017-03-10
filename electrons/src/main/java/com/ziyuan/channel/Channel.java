@@ -4,6 +4,7 @@ import com.ziyuan.chain.ListenerChain;
 import com.ziyuan.events.Electron;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Channel
@@ -24,6 +25,11 @@ public interface Channel {
     void close();
 
     /**
+     * 给管道注册监听器
+     */
+    void regist();
+
+    /**
      * 发布事件
      *
      * @param source
@@ -35,4 +41,15 @@ public interface Channel {
      * 直接处理
      */
     void handle();
+
+    /**
+     * 配置限流
+     *
+     * @param limitRate
+     * @param perSecond
+     * @param warmup
+     * @param warmupPeriod
+     * @param unit
+     */
+    void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit);
 }

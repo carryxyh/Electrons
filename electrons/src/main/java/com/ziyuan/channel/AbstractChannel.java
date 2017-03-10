@@ -28,18 +28,18 @@ public abstract class AbstractChannel implements Channel {
     @Getter
     private boolean limitRate;
 
+    /**
+     * 容器
+     */
+    private final RingBuffer<Electron> ringBuffer;
+
     protected AbstractChannel(RingBuffer<Electron> ringBuffer) {
         this.ringBuffer = ringBuffer;
     }
 
     public abstract void publish(String source, Electron electron);
 
-    /**
-     * 容器
-     */
-    private final RingBuffer<Electron> ringBuffer;
-
-    public void conf(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit) {
+    public void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit) {
         if (limitRate) {
             limitRate = true;
             if (warmup) {

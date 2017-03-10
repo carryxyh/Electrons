@@ -2,14 +2,13 @@ package com.ziyuan;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.chain.ListenerChain;
 import com.ziyuan.chain.ListenerChainBuilder;
 import com.ziyuan.channel.Channel;
-import com.ziyuan.events.Electron;
 import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,17 +24,12 @@ public final class Dispatcher {
     /**
      * 是否已经开始了
      */
-    private AtomicBoolean started;
+    private AtomicBoolean started = new AtomicBoolean(false);
 
     /**
      * 通道
      */
-    private Map<String, Channel> channelMap;
-
-    /**
-     * disruptor
-     */
-    private Disruptor<Electron> disruptor;
+    private Map<String, Channel> channelMap = new HashMap<>();
 
     /**
      * wrapper map
@@ -50,6 +44,10 @@ public final class Dispatcher {
     private Config conf;
 
     public void start() {
+        if (started.get()) {
+            return;
+        }
+        started.set(true);
         //根据config中channel的数量，初始化channels
         initChannel(conf);
     }
@@ -70,7 +68,25 @@ public final class Dispatcher {
     }
 
     private void initChannel(Config config) {
+        for (Map.Entry<ElectronsWrapper, ListenerChain> entry : chainMap.entries()) {
+            ListenerChain lc = entry.getValue();
+            ElectronsWrapper ew = entry.getKey();
+            if (lc.isHasBefore()) {
+                //特殊处理的channel
+                String key = SPEC_CHANNEL_PREFIX + ew.toString();
+                Channel c = channelMap.get(key);
+                if (c == null) {
 
+                } else {
+                    //已经注册过channel了
+                    continue;
+                }
+            } else {
+                //正常的channel
+
+            }
+
+        }
     }
 
     /**

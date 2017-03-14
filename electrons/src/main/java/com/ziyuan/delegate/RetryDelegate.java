@@ -1,8 +1,10 @@
 package com.ziyuan.delegate;
 
+import com.lmax.disruptor.InsufficientCapacityException;
 import com.ziyuan.EleCircuit;
 import com.ziyuan.events.Electron;
-import com.ziyuan.exceptions.CircuitCongestedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * RetryDelegate 重试一次，再失败改同步
@@ -12,7 +14,9 @@ import com.ziyuan.exceptions.CircuitCongestedException;
  */
 public class RetryDelegate extends AbstractDelegatePublisher {
 
-    protected RetryDelegate(EleCircuit eleCircuit) {
+    private static Logger logger = LoggerFactory.getLogger(RetryDelegate.class);
+
+    public RetryDelegate(EleCircuit eleCircuit) {
         super(eleCircuit);
     }
 
@@ -21,12 +25,17 @@ public class RetryDelegate extends AbstractDelegatePublisher {
         try {
             super.getEleCircuit().publish(tag, electron);
         } catch (Exception e) {
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e1) {
-                //ignore
+            if (e instanceof InsufficientCapacityException) {
+                //满了，睡眠300ms重试
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e1) {
+                    //ignore
+                }
+                retry(tag, electron);
+            } else {
+                logger.error("Async publish failed electron : { tag: " + tag + "electron: " + electron.toString() + "}", e);
             }
-            retry(tag, electron);
         }
     }
 
@@ -37,7 +46,7 @@ public class RetryDelegate extends AbstractDelegatePublisher {
             try {
                 super.getEleCircuit().publishSync(tag, electron);
             } catch (Exception e1) {
-
+                logger.error("Retry failed electron : { tag: " + tag + "electron: " + electron.toString() + "}", e1);
             }
         }
     }

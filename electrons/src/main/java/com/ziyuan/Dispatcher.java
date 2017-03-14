@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Dispatcher 分发器，用来把任务放到各个channel中
@@ -64,15 +65,17 @@ public final class Dispatcher {
     public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap, Config config) {
         this.conf = config;
         //初始化pool
-        pool = Executors.newFixedThreadPool(config.getCircuitNum(), new ThreadFactory() {
+        pool = Executors.newFixedThreadPool(conf.getCircuitNum(), new ThreadFactory() {
+
+            final AtomicInteger cursor = new AtomicInteger(0);
+
             @Override
             public Thread newThread(Runnable r) {
-                return null;
+                return new Thread(r, "Electrons Thread : thread" + cursor.incrementAndGet());
             }
         });
-    }
 
-    private void initChannel(Config config) {
+
     }
 
     /**

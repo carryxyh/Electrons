@@ -27,20 +27,51 @@ public abstract class AbstractChannel implements Channel {
     @Getter
     private boolean limitRate;
 
+    /**
+     * 默认愿意等待100毫秒
+     */
+    private int waitLimit = 100;
+
+    /**
+     * 单位
+     */
+    private TimeUnit waitUnit = TimeUnit.MILLISECONDS;
+
     protected volatile boolean opened;
 
-    public abstract void publish(String tag, Electron electron);
+    public boolean publish(String tag, Electron electron) {
+        if (!opened) {
+            return false;
+        }
+        //如果没有配置限速，直接返回
+        if (!limitRate) {
+            return false;
+        }
+        if (this.rateLimiter == null) {
+            return false;
+        }
+        int weight = electron.getWeight();
+        return rateLimiter.tryAcquire(weight, this.waitLimit, this.waitUnit);
+    }
 
+    @Override
     public void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit) {
         if (limitRate) {
-            limitRate = true;
+            this.limitRate = true;
             if (warmup) {
-                rateLimiter = RateLimiter.create(perSecond, warmupPeriod, unit);
+                this.rateLimiter = RateLimiter.create(perSecond, warmupPeriod, unit);
             } else {
-                rateLimiter = RateLimiter.create(perSecond);
+                this.rateLimiter = RateLimiter.create(perSecond);
             }
         } else {
-            limitRate = false;
+            this.limitRate = false;
         }
+    }
+
+    @Override
+    public void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit, int waitLimit, TimeUnit waitUnit) {
+        confLimitRate(limitRate, perSecond, warmup, warmupPeriod, unit);
+        this.waitLimit = waitLimit;
+        this.waitUnit = waitUnit;
     }
 }

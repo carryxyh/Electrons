@@ -2,7 +2,10 @@ package com.ziyuan;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.LiteBlockingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 import com.ziyuan.chain.ListenerChain;
 import com.ziyuan.channel.Channel;
 import com.ziyuan.events.Electron;
@@ -12,6 +15,9 @@ import com.ziyuan.events.ListenerCollectWrapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -52,8 +58,19 @@ public final class Dispatcher {
      */
     private Config conf;
 
-    private Disruptor<? extends Electron> normal;
+    /**
+     * 线程池
+     */
+    private ExecutorService pool;
 
+    /**
+     * 正常通道的disruptor
+     */
+    private Disruptor<ElectronsHolder> normal;
+
+    /**
+     * 特殊通道的disruptor
+     */
     private Disruptor<? extends Electron> spec;
 
     public void start() {
@@ -71,10 +88,23 @@ public final class Dispatcher {
 
     public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap, Config config) {
         chainMap = ArrayListMultimap.create();
+        this.conf = config;
         for (Map.Entry<ElectronsWrapper, ListenerCollectWrapper> entry : wrapperMap.entrySet()) {
 
         }
-        this.conf = config;
+        pool = Executors.newFixedThreadPool(config.getCircuitNum(), new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return null;
+            }
+        });
+        normal = new Disruptor<ElectronsHolder>(new EventFactory<ElectronsHolder>() {
+            @Override
+            public ElectronsHolder newInstance() {
+                return new ElectronsHolder();
+            }
+        }, config.getCircuitLen(), pool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
+
     }
 
     private void initChannel(Config config) {

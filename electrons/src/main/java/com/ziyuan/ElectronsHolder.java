@@ -22,8 +22,19 @@ public final class ElectronsHolder {
      */
     private List<ElectronsListener> listeners;
 
-    public ElectronsHolder(Electron electron, List<ElectronsListener> listeners) {
+    public Electron getElectron() {
+        return electron;
+    }
+
+    public void setElectron(Electron electron) {
         this.electron = electron;
+    }
+
+    public List<ElectronsListener> getListeners() {
+        return listeners;
+    }
+
+    public void setListeners(List<ElectronsListener> listeners) {
         this.listeners = listeners;
     }
 }

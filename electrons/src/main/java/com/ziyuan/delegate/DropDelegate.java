@@ -2,7 +2,6 @@ package com.ziyuan.delegate;
 
 import com.ziyuan.EleCircuit;
 import com.ziyuan.events.Electron;
-import com.ziyuan.exceptions.CircuitCongestedException;
 
 /**
  * DropDelegate 满了直接丢弃事件（不建议）
@@ -19,7 +18,7 @@ public class DropDelegate extends AbstractDelegatePublisher {
     public void publish(String tag, Electron electron) {
         try {
             super.getEleCircuit().publish(tag, electron);
-        } catch (CircuitCongestedException e) {
+        } catch (Exception e) {
 
         }
     }

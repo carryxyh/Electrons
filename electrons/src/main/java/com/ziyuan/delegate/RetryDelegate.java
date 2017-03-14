@@ -20,7 +20,7 @@ public class RetryDelegate extends AbstractDelegatePublisher {
 
         try {
             super.getEleCircuit().publish(tag, electron);
-        } catch (CircuitCongestedException e) {
+        } catch (Exception e) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e1) {
@@ -33,8 +33,8 @@ public class RetryDelegate extends AbstractDelegatePublisher {
     private void retry(String tag, Electron electron) {
         try {
             super.getEleCircuit().publish(tag, electron);
-        } catch (CircuitCongestedException e) {
-            //TODO 再次失败，直接同步
+        } catch (Exception e) {
+            super.getEleCircuit().publishSync(tag, electron);
         }
     }
 }

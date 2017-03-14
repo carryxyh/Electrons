@@ -82,7 +82,7 @@ public final class EleCircuit {
         if (electron == null) {
             throw new NullPointerException("Electron can not be null !");
         }
-        dispatcher.dispatch(tag, electron, true);
+        dispatcher.dispatch(tag, electron, false);
         return true;
     }
 
@@ -93,7 +93,7 @@ public final class EleCircuit {
      * @param electron 事件
      * @throws CircuitCongestedException 异常
      */
-    public boolean publishSync(String tag, Electron electron) throws CircuitCongestedException {
+    public boolean publishSync(String tag, Electron electron) {
         if (!started.get()) {
             return false;
         }
@@ -114,6 +114,7 @@ public final class EleCircuit {
         started.set(false);
         if (dispatcher != null) {
             dispatcher.stop();
+            dispatcher = null;
         }
         return false;
     }

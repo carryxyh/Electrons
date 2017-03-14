@@ -12,6 +12,7 @@ import com.ziyuan.events.Electron;
 import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
 
+import javax.xml.ws.Holder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public final class Dispatcher {
     /**
      * 特殊通道的disruptor
      */
-    private Disruptor<? extends Electron> spec;
+    private Disruptor<Holder<Electron>> spec;
 
     public void start() {
         if (started.get()) {
@@ -104,7 +105,6 @@ public final class Dispatcher {
                 return new ElectronsHolder();
             }
         }, config.getCircuitLen(), pool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
-
     }
 
     private void initChannel(Config config) {

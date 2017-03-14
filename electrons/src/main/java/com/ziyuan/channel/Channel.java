@@ -1,7 +1,9 @@
 package com.ziyuan.channel;
 
+import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.events.Electron;
 
+import javax.xml.ws.Holder;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
@@ -14,9 +16,9 @@ import java.util.concurrent.TimeUnit;
 public interface Channel extends Serializable {
 
     /**
-     * 根据监听器链来打开一个管道
+     * 根据disruptor开启一个通道
      */
-    void open();
+    void open(Disruptor<Holder> disruptor);
 
     /**
      * 关闭管道

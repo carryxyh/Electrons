@@ -1,9 +1,12 @@
 package com.ziyuan.channel;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.events.Electron;
 import lombok.Getter;
 
+import javax.xml.ws.Holder;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -17,27 +20,20 @@ public abstract class AbstractChannel implements Channel {
     private RateLimiter rateLimiter;
 
     /**
-     * 每秒令牌
-     */
-    private int perSecond;
-
-    /**
      * 是否开启限速
      */
     @Getter
     private boolean limitRate;
 
     /**
-     * 默认愿意等待100毫秒
+     * 开启
      */
-    private int waitLimit = 100;
+    protected volatile boolean opened;
 
     /**
-     * 单位
+     * 真正的电路
      */
-    private TimeUnit waitUnit = TimeUnit.MILLISECONDS;
-
-    protected volatile boolean opened;
+    protected RingBuffer<Holder> buffer;
 
     public boolean publish(String tag, Electron electron) {
         if (!opened) {
@@ -51,7 +47,28 @@ public abstract class AbstractChannel implements Channel {
             return false;
         }
         int weight = electron.getWeight();
-        return rateLimiter.tryAcquire(weight, this.waitLimit, this.waitUnit);
+        //等待
+        rateLimiter.acquire(weight);
+        return true;
+    }
+
+    @Override
+    public void open(Disruptor<Holder> disruptor) {
+        synchronized (this) {
+            buffer = disruptor.start();
+        }
+    }
+
+    @Override
+    public void close() {
+        if (!this.opened) {
+            return;
+        }
+        synchronized (this) {
+            if (this.opened) {
+                this.opened = false;
+            }
+        }
     }
 
     @Override
@@ -66,12 +83,5 @@ public abstract class AbstractChannel implements Channel {
         } else {
             this.limitRate = false;
         }
-    }
-
-    @Override
-    public void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit, int waitLimit, TimeUnit waitUnit) {
-        confLimitRate(limitRate, perSecond, warmup, warmupPeriod, unit);
-        this.waitLimit = waitLimit;
-        this.waitUnit = waitUnit;
     }
 }

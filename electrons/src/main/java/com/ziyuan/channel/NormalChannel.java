@@ -1,12 +1,8 @@
 package com.ziyuan.channel;
 
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.dsl.Disruptor;
-import com.ziyuan.ElectronsHolder;
-import com.ziyuan.chain.ListenerChain;
 import com.ziyuan.events.Electron;
 
-import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * NormalChannel
@@ -16,20 +12,12 @@ import java.util.Collection;
  */
 public class NormalChannel extends AbstractChannel {
 
-    /**
-     * disruptor
-     */
-    private Disruptor<ElectronsHolder> disruptor;
-
-    /**
-     * 正常逻辑的电路
-     */
-    private RingBuffer<ElectronsHolder> circuit;
-
     @Override
-    public void open(Collection<ListenerChain> chains) {
-
+    public boolean publish(String tag, Electron electron) {
+        super.publish(tag, electron);
+        return true;
     }
+
 
     @Override
     public void close() {
@@ -42,12 +30,12 @@ public class NormalChannel extends AbstractChannel {
     }
 
     @Override
-    public void publish(String tag, Electron electron) {
+    public void handle() {
 
     }
 
     @Override
-    public void handle() {
+    public void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit, int waitLimit, TimeUnit waitUnit) {
 
     }
 }

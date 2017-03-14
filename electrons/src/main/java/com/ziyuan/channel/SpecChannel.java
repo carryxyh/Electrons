@@ -1,11 +1,8 @@
 package com.ziyuan.channel;
 
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.dsl.Disruptor;
-import com.ziyuan.chain.ListenerChain;
 import com.ziyuan.events.Electron;
 
-import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * SpecChannel 特殊管道，用于处理after逻辑
@@ -15,25 +12,15 @@ import java.util.Collection;
  */
 public class SpecChannel extends AbstractChannel {
 
-    /**
-     * disruptor
-     */
-    private Disruptor<Electron> disruptor;
-
-    /**
-     * after逻辑电路
-     */
-    private RingBuffer<Electron> circuit;
-
     @Override
-    public void open(Collection<ListenerChain> chains) {
-
+    public boolean publish(String tag, Electron electron) {
+        super.publish(tag, electron);
+        return true;
     }
 
     @Override
     public void close() {
-        disruptor.shutdown();
-        disruptor = null;
+
     }
 
     @Override
@@ -47,7 +34,7 @@ public class SpecChannel extends AbstractChannel {
     }
 
     @Override
-    public void publish(String tag, Electron electron) {
+    public void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit, int waitLimit, TimeUnit waitUnit) {
 
     }
 }

@@ -51,6 +51,11 @@ public final class Dispatcher {
      */
     private ExecutorService pool;
 
+    /**
+     * key 事件的包装类  value 该事件的监听器包装类
+     */
+    private Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap;
+
     public void start() {
         if (started.get()) {
             return;
@@ -64,6 +69,7 @@ public final class Dispatcher {
 
     public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap, Config config) {
         this.conf = config;
+        this.wrapperMap = wrapperMap;
         //初始化pool
         pool = Executors.newFixedThreadPool(conf.getCircuitNum(), new ThreadFactory() {
 
@@ -74,7 +80,6 @@ public final class Dispatcher {
                 return new Thread(r, "Electrons Thread : thread" + cursor.incrementAndGet());
             }
         });
-
 
     }
 

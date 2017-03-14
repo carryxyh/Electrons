@@ -35,7 +35,7 @@ public abstract class AbstractChannel implements Channel {
      */
     protected RingBuffer<Holder> buffer;
 
-    public boolean publish(String tag, Electron electron) {
+    public boolean publish(String tag, Electron electron) throws Exception {
         if (!opened) {
             return false;
         }

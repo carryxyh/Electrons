@@ -37,4 +37,15 @@ public final class ElectronsHolder {
     public void setListeners(List<ElectronsListener> listeners) {
         this.listeners = listeners;
     }
+
+    /**
+     * 处理
+     *
+     * @throws Exception 处理过程中的异常，同样抛出去
+     */
+    public void handle() throws Exception {
+        for (ElectronsListener listener : listeners) {
+            listener.onEvent(electron);
+        }
+    }
 }

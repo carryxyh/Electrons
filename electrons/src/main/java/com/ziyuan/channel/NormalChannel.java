@@ -2,8 +2,6 @@ package com.ziyuan.channel;
 
 import com.ziyuan.events.Electron;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * NormalChannel
  *
@@ -13,29 +11,13 @@ import java.util.concurrent.TimeUnit;
 public class NormalChannel extends AbstractChannel {
 
     @Override
-    public boolean publish(String tag, Electron electron) {
+    public boolean publish(String tag, Electron electron) throws Exception {
         super.publish(tag, electron);
         return true;
     }
 
-
-    @Override
-    public void close() {
-
-    }
-
-    @Override
-    public void regist() {
-
-    }
-
     @Override
     public void handle() {
-
-    }
-
-    @Override
-    public void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit, int waitLimit, TimeUnit waitUnit) {
 
     }
 }

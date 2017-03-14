@@ -2,6 +2,7 @@ package com.ziyuan.channel;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.events.Electron;
+import com.ziyuan.exceptions.OpNotSupportException;
 
 import javax.xml.ws.Holder;
 import java.io.Serializable;
@@ -26,19 +27,14 @@ public interface Channel extends Serializable {
     void close();
 
     /**
-     * 给管道注册监听器
-     */
-    void regist();
-
-    /**
      * 发布事件
      */
-    boolean publish(String tag, Electron electron);
+    boolean publish(String tag, Electron electron) throws Exception;
 
     /**
-     * 直接处理
+     * 同步处理
      */
-    void handle();
+    void handle() throws OpNotSupportException;
 
     /**
      * 配置限流
@@ -50,15 +46,4 @@ public interface Channel extends Serializable {
      * @param unit
      */
     void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit);
-
-    /**
-     * 配置限流
-     *
-     * @param limitRate
-     * @param perSecond
-     * @param warmup
-     * @param warmupPeriod
-     * @param unit
-     */
-    void confLimitRate(boolean limitRate, double perSecond, boolean warmup, int warmupPeriod, TimeUnit unit, int waitLimit, TimeUnit waitUnit);
 }

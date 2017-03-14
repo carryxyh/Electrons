@@ -21,7 +21,7 @@ public class ListenerCollectWrapper {
     /**
      * 是否存在有after逻辑
      */
-    private boolean hasAfterLis;
+    private boolean hasAfter;
 
     public void addListener(ElectronsListener listener) {
         this.electronsListeners.add(listener);
@@ -35,11 +35,11 @@ public class ListenerCollectWrapper {
         this.electronsListeners = electronsListeners;
     }
 
-    public boolean isHasAfterLis() {
-        return hasAfterLis;
+    public boolean isHasAfter() {
+        return hasAfter;
     }
 
-    public void setHasAfterLis(boolean hasAfterLis) {
-        this.hasAfterLis = hasAfterLis;
+    public void setHasAfter(boolean hasAfter) {
+        this.hasAfter = hasAfter;
     }
 }

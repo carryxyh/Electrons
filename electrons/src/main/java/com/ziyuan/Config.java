@@ -19,7 +19,7 @@ public final class Config {
     private int circuitNum = 8;
 
     /**
-     * 默认2左移十位 512
+     * 512
      */
     private int circuitLen = 2 << 8;
 
@@ -34,9 +34,9 @@ public final class Config {
     private boolean scanJar = false;
 
     /**
-     * channel的数量，大于1的时候则类似rocketmq的queue模型
+     * 默认的特殊电路的长度 128
      */
-    private int channels = 1;
+    private int specCircuitLen = 2 << 6;
 
     /*------------------------------------限流相关---------------------------------------*/
 

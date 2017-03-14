@@ -93,7 +93,7 @@ public final class EleCircuit {
      * @param electron 事件
      * @throws CircuitCongestedException 异常
      */
-    public boolean publishSync(String tag, Electron electron) {
+    public boolean publishSync(String tag, Electron electron) throws Exception {
         if (!started.get()) {
             return false;
         }

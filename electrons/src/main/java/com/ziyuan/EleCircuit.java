@@ -154,7 +154,7 @@ public final class EleCircuit {
             listenerWrapper.addListener(clazz.newInstance());
             if (StringUtils.isNotBlank(ann.after())) {
                 //如果不为空，有after逻辑
-                listenerWrapper.setHasAfterLis(true);
+                listenerWrapper.setHasAfter(true);
             }
         }
         if (dispatcher != null) {

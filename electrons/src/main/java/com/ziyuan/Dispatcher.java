@@ -154,6 +154,8 @@ public final class Dispatcher {
 
         if (sync) {
             //同步
+        } else {
+
         }
     }
 }

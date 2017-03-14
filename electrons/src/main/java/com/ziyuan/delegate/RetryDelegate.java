@@ -22,7 +22,7 @@ public class RetryDelegate extends AbstractDelegatePublisher {
             super.getEleCircuit().publish(tag, electron);
         } catch (Exception e) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(300);
             } catch (InterruptedException e1) {
                 //ignore
             }
@@ -34,7 +34,11 @@ public class RetryDelegate extends AbstractDelegatePublisher {
         try {
             super.getEleCircuit().publish(tag, electron);
         } catch (Exception e) {
-            super.getEleCircuit().publishSync(tag, electron);
+            try {
+                super.getEleCircuit().publishSync(tag, electron);
+            } catch (Exception e1) {
+
+            }
         }
     }
 }

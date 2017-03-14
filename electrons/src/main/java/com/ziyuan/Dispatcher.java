@@ -2,9 +2,10 @@ package com.ziyuan;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.chain.ListenerChain;
-import com.ziyuan.chain.ListenerChainBuilder;
 import com.ziyuan.channel.Channel;
+import com.ziyuan.events.Electron;
 import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
 
@@ -51,6 +52,10 @@ public final class Dispatcher {
      */
     private Config conf;
 
+    private Disruptor<? extends Electron> normal;
+
+    private Disruptor<? extends Electron> spec;
+
     public void start() {
         if (started.get()) {
             return;
@@ -67,10 +72,7 @@ public final class Dispatcher {
     public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap, Config config) {
         chainMap = ArrayListMultimap.create();
         for (Map.Entry<ElectronsWrapper, ListenerCollectWrapper> entry : wrapperMap.entrySet()) {
-            List<ListenerChain> cs = ListenerChainBuilder.build(entry.getValue());
-            for (ListenerChain lc : cs) {
-                chainMap.put(entry.getKey(), lc);
-            }
+
         }
         this.conf = config;
     }
@@ -81,7 +83,7 @@ public final class Dispatcher {
             ElectronsWrapper ew = entry.getKey();
             if (lc.isHasBefore()) {
                 //特殊处理的channel
-                String key = SPEC_CHANNEL_PREFIX + ew.toString();
+                String key = SPEC_CHANNEL_PREFIX + ew.getTag();
                 Channel c = channelMap.get(key);
                 if (c == null) {
 
@@ -110,9 +112,13 @@ public final class Dispatcher {
     /**
      * 分发
      *
-     * @param wrapper 事件的wrapper
+     * @param electron 电子
+     * @param tag      tag
+     * @param sync     是否同步
      */
-    public void dispatch(ElectronsWrapper wrapper) {
+    public void dispatch(String tag, Electron electron, boolean sync) {
+        ElectronsWrapper wrapper = new ElectronsWrapper(tag, electron.getClass());
+        wrapper.setSync(sync);
         List<ListenerChain> chains = chainMap.get(wrapper);
         //包装一下放到channel中
         Channel channel = selectOne(wrapper);

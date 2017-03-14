@@ -66,6 +66,10 @@ public final class ElectronsWrapper {
         return true;
     }
 
+    public String getTag() {
+        return tag;
+    }
+
     @Override
     public String toString() {
         return "ElectronsWrapper{" +

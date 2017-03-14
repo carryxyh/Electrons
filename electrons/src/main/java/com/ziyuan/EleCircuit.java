@@ -82,12 +82,7 @@ public final class EleCircuit {
         if (electron == null) {
             throw new NullPointerException("Electron can not be null !");
         }
-        if (!conf.isAsync()) {
-            publishSync(tag, electron);
-            return true;
-        }
-        ElectronsWrapper wrapper = new ElectronsWrapper(tag, electron.getClass());
-        dispatcher.dispatch(wrapper);
+        dispatcher.dispatch(tag, electron, true);
         return true;
     }
 
@@ -105,10 +100,8 @@ public final class EleCircuit {
         if (electron == null) {
             throw new NullPointerException("Electron can not be null !");
         }
-        ElectronsWrapper wrapper = new ElectronsWrapper(tag, electron.getClass());
         //设置同步
-        wrapper.setSync(true);
-        dispatcher.dispatch(wrapper);
+        dispatcher.dispatch(tag, electron, true);
         return true;
     }
 

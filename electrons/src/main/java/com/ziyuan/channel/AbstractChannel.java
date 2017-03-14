@@ -3,10 +3,11 @@ package com.ziyuan.channel;
 import com.google.common.util.concurrent.RateLimiter;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.ziyuan.events.Electron;
+import com.ziyuan.ElectronsHolder;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.Holder;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -17,6 +18,14 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractChannel implements Channel {
 
+    /**
+     * logger
+     */
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractChannel.class);
+
+    /**
+     * 限流
+     */
     private RateLimiter rateLimiter;
 
     /**
@@ -33,9 +42,9 @@ public abstract class AbstractChannel implements Channel {
     /**
      * 真正的电路
      */
-    protected RingBuffer<Holder> buffer;
+    protected RingBuffer<ElectronsHolder> buffer;
 
-    public boolean publish(String tag, Electron electron) throws Exception {
+    public boolean publish(ElectronsHolder electronsHolder) throws Exception {
         if (!opened) {
             return false;
         }
@@ -46,14 +55,22 @@ public abstract class AbstractChannel implements Channel {
         if (this.rateLimiter == null) {
             return false;
         }
-        int weight = electron.getWeight();
+        int weight = electronsHolder.getElectron().getWeight();
         //等待
         rateLimiter.acquire(weight);
+        long next = buffer.tryNext();
+        //the remaining capacity of the buffer < the size of the buffer * 0.2 日志输出提示告警
+        if (buffer.remainingCapacity() < buffer.getBufferSize() * 0.2) {
+            LOGGER.warn("commandBus consume warn message, remainingCapacity size:" + buffer.remainingCapacity() + ",conRingBuffer size:" + buffer.getBufferSize());
+        }
+        ElectronsHolder eh = buffer.get(next);
+        eh.setElectron(electronsHolder.getElectron());
+        buffer.publish(next);
         return true;
     }
 
     @Override
-    public void open(Disruptor<Holder> disruptor) {
+    public void open(Disruptor<ElectronsHolder> disruptor) {
         synchronized (this) {
             buffer = disruptor.start();
         }

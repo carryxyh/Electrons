@@ -1,10 +1,9 @@
 package com.ziyuan.channel;
 
 import com.lmax.disruptor.dsl.Disruptor;
-import com.ziyuan.events.Electron;
+import com.ziyuan.ElectronsHolder;
 import com.ziyuan.exceptions.OpNotSupportException;
 
-import javax.xml.ws.Holder;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
@@ -19,7 +18,7 @@ public interface Channel extends Serializable {
     /**
      * 根据disruptor开启一个通道
      */
-    void open(Disruptor<Holder> disruptor);
+    void open(Disruptor<ElectronsHolder> disruptor);
 
     /**
      * 关闭管道
@@ -29,12 +28,12 @@ public interface Channel extends Serializable {
     /**
      * 发布事件
      */
-    boolean publish(String tag, Electron electron) throws Exception;
+    boolean publish(ElectronsHolder electronsHolder) throws Exception;
 
     /**
      * 同步处理
      */
-    void handle() throws OpNotSupportException;
+    void handle(ElectronsHolder electronsHolder) throws OpNotSupportException;
 
     /**
      * 配置限流

@@ -1,6 +1,6 @@
 package com.ziyuan.channel;
 
-import com.ziyuan.events.Electron;
+import com.ziyuan.ElectronsHolder;
 
 /**
  * NormalChannel
@@ -11,13 +11,11 @@ import com.ziyuan.events.Electron;
 public class NormalChannel extends AbstractChannel {
 
     @Override
-    public boolean publish(String tag, Electron electron) throws Exception {
-        super.publish(tag, electron);
-        return true;
-    }
-
-    @Override
-    public void handle() {
-
+    public void handle(ElectronsHolder electronsHolder) {
+        try {
+            electronsHolder.handle();
+        } catch (Exception e) {
+            super.LOGGER.error("Sync handle occurs exception !", e);
+        }
     }
 }

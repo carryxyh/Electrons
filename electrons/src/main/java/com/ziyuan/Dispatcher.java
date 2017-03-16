@@ -72,16 +72,6 @@ public final class Dispatcher {
     private Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap;
 
     /**
-     * 正常通道的disruptor
-     */
-    private Disruptor<ElectronsHolder> normalDis;
-
-    /**
-     * 特殊disruptor集合
-     */
-    private List<Disruptor<ElectronsHolder>> specDises = new ArrayList<>();
-
-    /**
      * 启动分发器
      */
     public synchronized void start() {
@@ -89,6 +79,11 @@ public final class Dispatcher {
             return;
         }
         started.set(true);
+        if (channelMap.size() != 0) {
+            for (Channel c : channelMap.values()) {
+                c.open();
+            }
+        }
     }
 
     /**
@@ -98,14 +93,13 @@ public final class Dispatcher {
         if (!started.get()) {
             return;
         }
-        channelMap.clear();
-        normalDis.shutdown();
-        if (CollectionUtils.isNotEmpty(specDises)) {
-            for (Disruptor disruptor : specDises) {
-                disruptor.shutdown();
+        started.set(false);
+        if (channelMap.size() != 0) {
+            for (Channel c : channelMap.values()) {
+                c.close();
             }
-            specDises.clear();
         }
+        channelMap.clear();
         if (CollectionUtils.isNotEmpty(specPools)) {
             for (ExecutorService p : specPools) {
                 p.shutdown();
@@ -113,7 +107,6 @@ public final class Dispatcher {
             specPools.clear();
         }
         wrapperMap.clear();
-        started.set(false);
         pool.shutdown();
     }
 
@@ -187,10 +180,9 @@ public final class Dispatcher {
         }, conf.getSpecCircuitLen(), specPool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
         ListenerChainBuilder.buildChain(disruptor, listeners);
         disruptor.handleExceptionsWith(new ElecExceptionHandler("Spec Disruptor {" + symbol + "}"));
-        specDises.add(disruptor);
 
         //初始化管道并放入集合中
-        Channel specChannel = new SpecChannel();
+        Channel specChannel = new SpecChannel(disruptor);
         channelMap.put(SPEC_CHANNEL_PREFIX + symbol, specChannel);
     }
 
@@ -198,7 +190,7 @@ public final class Dispatcher {
      * 初始化正常管道，任何情况下都会有
      */
     private void initNormalChannel() {
-        normalDis = new Disruptor<ElectronsHolder>(new EventFactory<ElectronsHolder>() {
+        Disruptor<ElectronsHolder> normalDis = new Disruptor<>(new EventFactory<ElectronsHolder>() {
 
             @Override
             public ElectronsHolder newInstance() {
@@ -206,7 +198,11 @@ public final class Dispatcher {
             }
         }, conf.getCircuitLen(), pool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
         normalDis.handleExceptionsWith(new ElecExceptionHandler("Normal Disruptor"));
-        Channel normalChannel = new NormalChannel();
+
+        //初始化channel
+        Channel normalChannel = new NormalChannel(normalDis);
+        //配置限流相关
+        normalChannel.confLimitRate(conf.isLimitRate(), conf.getPerSecond(), conf.isWarmup(), conf.getWarmupPeriod(), conf.getWarmPeriodUnit());
         channelMap.put(NORMAL_CHANNEL_KEY, normalChannel);
     }
 

@@ -1,6 +1,5 @@
 package com.ziyuan.channel;
 
-import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.ElectronsHolder;
 import com.ziyuan.exceptions.OpNotSupportException;
 
@@ -18,7 +17,7 @@ public interface Channel extends Serializable {
     /**
      * 根据disruptor开启一个通道
      */
-    void open(Disruptor<ElectronsHolder> disruptor);
+    void open();
 
     /**
      * 关闭管道

@@ -1,5 +1,6 @@
 package com.ziyuan.channel;
 
+import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.ElectronsHolder;
 import com.ziyuan.exceptions.OpNotSupportException;
 
@@ -11,8 +12,12 @@ import com.ziyuan.exceptions.OpNotSupportException;
  */
 public class SpecChannel extends AbstractChannel {
 
+    public SpecChannel(Disruptor<ElectronsHolder> disruptor) {
+        super(disruptor);
+    }
+
     @Override
-    public void handle(ElectronsHolder electronsHolder) throws OpNotSupportException {
+    public boolean handle(ElectronsHolder electronsHolder) throws OpNotSupportException {
         throw new OpNotSupportException();
     }
 }

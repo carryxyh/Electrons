@@ -39,10 +39,16 @@ public abstract class AbstractChannel implements Channel {
      */
     protected volatile boolean opened;
 
+    private final Disruptor<ElectronsHolder> disruptor;
+
     /**
      * 真正的电路
      */
     protected RingBuffer<ElectronsHolder> buffer;
+
+    public AbstractChannel(Disruptor<ElectronsHolder> disruptor) {
+        this.disruptor = disruptor;
+    }
 
     public boolean publish(ElectronsHolder electronsHolder) throws Exception {
         if (!opened) {
@@ -70,22 +76,21 @@ public abstract class AbstractChannel implements Channel {
     }
 
     @Override
-    public void open(Disruptor<ElectronsHolder> disruptor) {
-        synchronized (this) {
-            buffer = disruptor.start();
+    public synchronized void open() {
+        if (this.opened) {
+            return;
         }
+        this.opened = true;
+        this.buffer = this.disruptor.start();
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         if (!this.opened) {
             return;
         }
-        synchronized (this) {
-            if (this.opened) {
-                this.opened = false;
-            }
-        }
+        this.opened = false;
+        this.disruptor.shutdown();
     }
 
     @Override

@@ -68,7 +68,7 @@ public final class Config {
     /**
      * 每秒64个令牌
      */
-    private double threshold = 2 << 5;
+    private double perSecond = 2 << 5;
 
     /*------------------------------------熔断相关 默认：每两分钟内出现5个错误，就休息3分钟---------------------------------------*/
 

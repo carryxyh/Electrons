@@ -33,7 +33,7 @@ public interface Channel extends Serializable {
     /**
      * 同步处理
      */
-    void handle(ElectronsHolder electronsHolder) throws OpNotSupportException;
+    boolean handle(ElectronsHolder electronsHolder) throws OpNotSupportException;
 
     /**
      * 配置限流

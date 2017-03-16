@@ -11,11 +11,12 @@ import com.ziyuan.ElectronsHolder;
 public class NormalChannel extends AbstractChannel {
 
     @Override
-    public void handle(ElectronsHolder electronsHolder) {
+    public boolean handle(ElectronsHolder electronsHolder) {
         try {
-            electronsHolder.handle();
+            return electronsHolder.handle();
         } catch (Exception e) {
             super.LOGGER.error("Sync handle occurs exception !", e);
+            return false;
         }
     }
 }

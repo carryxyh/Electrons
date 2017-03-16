@@ -11,6 +11,7 @@ import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
 import com.ziyuan.exceptions.ElecExceptionHandler;
 import com.ziyuan.exceptions.OpNotSupportException;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -130,10 +131,18 @@ public final class Dispatcher {
      *
      * @return 根据wrapper选中的channel
      */
-    private Channel selectOne(String tag, String sourceType) {
+    private Channel selectOne(String tag, Electron electron, boolean hasAfter) {
+        if (StringUtils.isBlank(tag) || electron == null) {
+            return null;
+        }
         StringBuilder builder = new StringBuilder();
-        builder.append(SPEC_CHANNEL_PREFIX).append(tag).append("-").append(sourceType);
-        return channelMap.get(builder);
+        if (hasAfter) {
+            builder.append(SPEC_CHANNEL_PREFIX).append(tag).append("-").append(electron.getClass().getSimpleName());
+            //特殊管道
+        } else {
+            builder.append(NORMAL_CHANNEL_KEY);
+        }
+        return channelMap.get(builder.toString());
     }
 
     /**
@@ -143,7 +152,7 @@ public final class Dispatcher {
      * @param tag      tag
      * @param sync     是否同步
      */
-    public void dispatch(String tag, Electron electron, boolean sync) throws Exception {
+    public boolean dispatch(String tag, Electron electron, boolean sync) throws Exception {
         ElectronsWrapper wrapper = new ElectronsWrapper(tag, electron.getClass());
         ListenerCollectWrapper lisWrapper = wrapperMap.get(wrapper);
         boolean hasAfterLis = lisWrapper.isHasAfter();
@@ -152,10 +161,20 @@ public final class Dispatcher {
             throw new OpNotSupportException();
         }
 
+        //找对应的channel，找不到对应的channel返回false
+        Channel channel = selectOne(tag, electron, hasAfterLis);
+        if (channel == null) {
+            return false;
+        }
+
+        ElectronsHolder holder = new ElectronsHolder();
+        holder.setElectron(electron);
+        holder.setListeners(lisWrapper.getElectronsListeners());
         if (sync) {
             //同步
+            return channel.handle(holder);
         } else {
-
+            return channel.publish(holder);
         }
     }
 }

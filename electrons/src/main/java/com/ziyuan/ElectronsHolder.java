@@ -1,6 +1,7 @@
 package com.ziyuan;
 
 import com.ziyuan.events.Electron;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 
@@ -43,9 +44,13 @@ public final class ElectronsHolder {
      *
      * @throws Exception 处理过程中的异常，同样抛出去
      */
-    public void handle() throws Exception {
+    public boolean handle() throws Exception {
+        if (CollectionUtils.isEmpty(listeners)) {
+            return false;
+        }
         for (ElectronsListener listener : listeners) {
             listener.onEvent(electron);
         }
+        return true;
     }
 }

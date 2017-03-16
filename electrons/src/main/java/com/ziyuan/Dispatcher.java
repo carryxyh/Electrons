@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -36,7 +37,7 @@ public final class Dispatcher {
     private AtomicBoolean started = new AtomicBoolean(false);
 
     /**
-     * 通道
+     * 通道 特殊通道的键：前缀:tag-class.simpleName
      */
     private Map<String, Channel> channelMap = new HashMap<>();
 
@@ -89,9 +90,16 @@ public final class Dispatcher {
      * 停止分发器
      */
     public synchronized void stop() {
+        if (!started.get()) {
+            return;
+        }
         channelMap.clear();
         normalDis.shutdown();
+        for (Disruptor disruptor : specDises) {
+            disruptor.shutdown();
+        }
         wrapperMap.clear();
+        started.set(false);
     }
 
     public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap, Config config) {
@@ -108,6 +116,24 @@ public final class Dispatcher {
             }
         });
         initNormalChannel();
+        initSpecChannel(wrapperMap.entrySet());
+    }
+
+    /**
+     * 初始化特殊通道
+     *
+     * @param entries 事件和监听器集合
+     */
+    private void initSpecChannel(Set<Map.Entry<ElectronsWrapper, ListenerCollectWrapper>> entries) {
+        for (Map.Entry<ElectronsWrapper, ListenerCollectWrapper> entry : entries) {
+            ListenerCollectWrapper wrapper = entry.getValue();
+            if (wrapper.isHasAfter()) {
+                //走特殊通道，初始化特殊通道的Disruptor
+            } else {
+                //走普通通道
+                continue;
+            }
+        }
     }
 
     /**

@@ -165,6 +165,7 @@ public final class EleCircuit {
                 //如果不为空，有after逻辑
                 listenerWrapper.setHasAfter(true);
             }
+            wrapperMap.put(eleWrapper, listenerWrapper);
         }
         if (dispatcher != null) {
             dispatcher.stop();

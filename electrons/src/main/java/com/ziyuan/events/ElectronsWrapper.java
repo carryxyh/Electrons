@@ -1,8 +1,5 @@
 package com.ziyuan.events;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.lang.reflect.Type;
 
 /**
@@ -22,13 +19,6 @@ public final class ElectronsWrapper {
      * 事件源
      */
     private Type source;
-
-    /**
-     * 同步事件
-     */
-    @Setter
-    @Getter
-    private boolean sync = false;
 
     public ElectronsWrapper(String tag, Type source) {
         this.tag = tag;
@@ -68,6 +58,12 @@ public final class ElectronsWrapper {
 
     public String getTag() {
         return tag;
+    }
+
+    public String getSymbol() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.tag).append("-").append(this.source.getClass().getSimpleName());
+        return builder.toString();
     }
 
     @Override

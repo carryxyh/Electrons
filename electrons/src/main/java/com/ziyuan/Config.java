@@ -19,9 +19,19 @@ public final class Config {
     private int circuitNum = 8;
 
     /**
+     * 特殊电路的数量
+     */
+    private int specCircuitNum = 3;
+
+    /**
      * 512
      */
     private int circuitLen = 2 << 8;
+
+    /**
+     * 默认的特殊电路的长度 128
+     */
+    private int specCircuitLen = 2 << 6;
 
     /**
      * 默认扫所有
@@ -32,11 +42,6 @@ public final class Config {
      * 默认不扫描jar包
      */
     private boolean scanJar = false;
-
-    /**
-     * 默认的特殊电路的长度 128
-     */
-    private int specCircuitLen = 2 << 6;
 
     /*------------------------------------限流相关---------------------------------------*/
 

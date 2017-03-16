@@ -4,19 +4,19 @@ import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.LiteBlockingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.ziyuan.chain.ListenerChainBuilder;
 import com.ziyuan.channel.Channel;
 import com.ziyuan.channel.NormalChannel;
+import com.ziyuan.channel.SpecChannel;
 import com.ziyuan.events.Electron;
 import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
 import com.ziyuan.exceptions.ElecExceptionHandler;
 import com.ziyuan.exceptions.OpNotSupportException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -62,6 +62,11 @@ public final class Dispatcher {
     private ExecutorService pool;
 
     /**
+     * 特殊channel使用的线程池
+     */
+    private List<ExecutorService> specPools = new ArrayList<>();
+
+    /**
      * key 事件的包装类  value 该事件的监听器包装类
      */
     private Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap;
@@ -74,7 +79,7 @@ public final class Dispatcher {
     /**
      * 特殊disruptor集合
      */
-    private List<Disruptor<ElectronsHolder>> specDises;
+    private List<Disruptor<ElectronsHolder>> specDises = new ArrayList<>();
 
     /**
      * 启动分发器
@@ -95,15 +100,32 @@ public final class Dispatcher {
         }
         channelMap.clear();
         normalDis.shutdown();
-        for (Disruptor disruptor : specDises) {
-            disruptor.shutdown();
+        if (CollectionUtils.isNotEmpty(specDises)) {
+            for (Disruptor disruptor : specDises) {
+                disruptor.shutdown();
+            }
+            specDises.clear();
+        }
+        if (CollectionUtils.isNotEmpty(specPools)) {
+            for (ExecutorService p : specPools) {
+                p.shutdown();
+            }
+            specPools.clear();
         }
         wrapperMap.clear();
         started.set(false);
+        pool.shutdown();
     }
 
     public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap, Config config) {
-        this.conf = config;
+        if (config != null) {
+            this.conf = config;
+        } else {
+            this.conf = new Config();
+        }
+        if (wrapperMap == null || wrapperMap.size() == 0) {
+            throw new NullPointerException("WrapperMap can not be null or contains nothing !");
+        }
         this.wrapperMap = wrapperMap;
         //初始化pool
         pool = Executors.newFixedThreadPool(conf.getCircuitNum(), new ThreadFactory() {
@@ -126,14 +148,50 @@ public final class Dispatcher {
      */
     private void initSpecChannel(Set<Map.Entry<ElectronsWrapper, ListenerCollectWrapper>> entries) {
         for (Map.Entry<ElectronsWrapper, ListenerCollectWrapper> entry : entries) {
-            ListenerCollectWrapper wrapper = entry.getValue();
-            if (wrapper.isHasAfter()) {
+            ListenerCollectWrapper lisWrapper = entry.getValue();
+            if (lisWrapper.isHasAfter()) {
                 //走特殊通道，初始化特殊通道的Disruptor
+                ElectronsWrapper eleWrapper = entry.getKey();
+                initSpecDisruptor(eleWrapper.getSymbol(), lisWrapper.getElectronsListeners());
             } else {
                 //走普通通道
                 continue;
             }
         }
+    }
+
+    /**
+     * 根据config初始化特殊通道
+     *
+     * @param symbol    事件
+     * @param listeners 对应的监听器集合
+     */
+    private void initSpecDisruptor(String symbol, List<ElectronsListener> listeners) {
+        ExecutorService specPool = Executors.newFixedThreadPool(conf.getSpecCircuitNum(), new ThreadFactory() {
+
+            final AtomicInteger cursor = new AtomicInteger(0);
+
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "Electrons Thread (from spec channel) : thread" + cursor.incrementAndGet());
+            }
+        });
+        specPools.add(specPool);
+
+        Disruptor<ElectronsHolder> disruptor = new Disruptor<ElectronsHolder>(new EventFactory<ElectronsHolder>() {
+
+            @Override
+            public ElectronsHolder newInstance() {
+                return new ElectronsHolder();
+            }
+        }, conf.getSpecCircuitLen(), specPool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
+        ListenerChainBuilder.buildChain(disruptor, listeners);
+        disruptor.handleExceptionsWith(new ElecExceptionHandler("Spec Disruptor {" + symbol + "}"));
+        specDises.add(disruptor);
+
+        //初始化管道并放入集合中
+        Channel specChannel = new SpecChannel();
+        channelMap.put(SPEC_CHANNEL_PREFIX + symbol, specChannel);
     }
 
     /**

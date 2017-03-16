@@ -39,6 +39,9 @@ public abstract class AbstractChannel implements Channel {
      */
     protected volatile boolean opened;
 
+    /**
+     * disruptor
+     */
     private final Disruptor<ElectronsHolder> disruptor;
 
     /**

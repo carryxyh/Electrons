@@ -42,6 +42,15 @@ public final class EleCircuit {
     @Setter
     private Config conf = new Config();
 
+    public EleCircuit() {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                stop();
+            }
+        }));
+    }
+
     /**
      * 启动
      *

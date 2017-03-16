@@ -57,19 +57,14 @@ public final class Dispatcher {
     private Config conf;
 
     /**
-     * 线程池
-     */
-    private ExecutorService pool;
-
-    /**
-     * 特殊channel使用的线程池
-     */
-    private List<ExecutorService> specPools = new ArrayList<>();
-
-    /**
      * key 事件的包装类  value 该事件的监听器包装类
      */
     private Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap;
+
+    /**
+     * 线程池，由于disruptor不会停止线程池，所以需要我们保留，并且在关闭的时候关掉
+     */
+    private List<ExecutorService> pools = new ArrayList<>();
 
     /**
      * 启动分发器
@@ -98,16 +93,15 @@ public final class Dispatcher {
             for (Channel c : channelMap.values()) {
                 c.close();
             }
+            channelMap.clear();
         }
-        channelMap.clear();
-        if (CollectionUtils.isNotEmpty(specPools)) {
-            for (ExecutorService p : specPools) {
+        if (CollectionUtils.isNotEmpty(pools)) {
+            for (ExecutorService p : pools) {
                 p.shutdown();
             }
-            specPools.clear();
+            pools.clear();
         }
         wrapperMap.clear();
-        pool.shutdown();
     }
 
     public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap, Config config) {
@@ -121,7 +115,7 @@ public final class Dispatcher {
         }
         this.wrapperMap = wrapperMap;
         //初始化pool
-        pool = Executors.newFixedThreadPool(conf.getCircuitNum(), new ThreadFactory() {
+        ExecutorService pool = Executors.newFixedThreadPool(conf.getCircuitNum(), new ThreadFactory() {
 
             final AtomicInteger cursor = new AtomicInteger(0);
 
@@ -130,7 +124,8 @@ public final class Dispatcher {
                 return new Thread(r, "Electrons Thread : thread" + cursor.incrementAndGet());
             }
         });
-        initNormalChannel();
+        this.pools.add(pool);
+        initNormalChannel(pool);
         initSpecChannel(wrapperMap.entrySet());
     }
 
@@ -169,7 +164,7 @@ public final class Dispatcher {
                 return new Thread(r, "Electrons Thread (from spec channel) : thread" + cursor.incrementAndGet());
             }
         });
-        specPools.add(specPool);
+        pools.add(specPool);
 
         Disruptor<ElectronsHolder> disruptor = new Disruptor<ElectronsHolder>(new EventFactory<ElectronsHolder>() {
 
@@ -178,8 +173,10 @@ public final class Dispatcher {
                 return new ElectronsHolder();
             }
         }, conf.getSpecCircuitLen(), specPool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
-        ListenerChainBuilder.buildChain(disruptor, listeners);
         disruptor.handleExceptionsWith(new ElecExceptionHandler("Spec Disruptor {" + symbol + "}"));
+
+        //构建listener顺序
+        ListenerChainBuilder.buildChain(disruptor, listeners);
 
         //初始化管道并放入集合中
         Channel specChannel = new SpecChannel(disruptor);
@@ -188,8 +185,10 @@ public final class Dispatcher {
 
     /**
      * 初始化正常管道，任何情况下都会有
+     *
+     * @param pool 线程池
      */
-    private void initNormalChannel() {
+    private void initNormalChannel(ExecutorService pool) {
         Disruptor<ElectronsHolder> normalDis = new Disruptor<>(new EventFactory<ElectronsHolder>() {
 
             @Override

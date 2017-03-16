@@ -59,6 +59,7 @@ public final class EleCircuit {
     public synchronized boolean start() {
         if (started.get()) {
             logger.error("Circuit is running !");
+            return false;
         }
         try {
             scan();
@@ -120,12 +121,15 @@ public final class EleCircuit {
      * @return
      */
     public synchronized boolean stop() {
+        if (!started.get()) {
+            return true;
+        }
         started.set(false);
         if (dispatcher != null) {
             dispatcher.stop();
             dispatcher = null;
         }
-        return false;
+        return true;
     }
 
     /**

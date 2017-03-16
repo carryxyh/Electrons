@@ -10,6 +10,7 @@ import com.ziyuan.channel.NormalChannel;
 import com.ziyuan.channel.SpecChannel;
 import com.ziyuan.events.Electron;
 import com.ziyuan.events.ElectronsWrapper;
+import com.ziyuan.events.HomelessEle;
 import com.ziyuan.events.ListenerCollectWrapper;
 import com.ziyuan.exceptions.ElecExceptionHandler;
 import com.ziyuan.exceptions.OpNotSupportException;
@@ -234,6 +235,18 @@ public final class Dispatcher {
     public boolean dispatch(String tag, Electron electron, boolean sync) throws Exception {
         ElectronsWrapper wrapper = new ElectronsWrapper(tag, electron.getClass());
         ListenerCollectWrapper lisWrapper = wrapperMap.get(wrapper);
+
+        //没有找到监听器集合，并且不是HomelessEle，用homelessEle发一次
+        if (lisWrapper == null) {
+            if (!electron.getClass().isAssignableFrom(HomelessEle.class)) {
+                HomelessEle homelessEle = new HomelessEle(electron.getSource());
+                return dispatch(tag, homelessEle, true);
+            } else {
+                //homelessEle还没找到监听器，return false
+                return false;
+            }
+        }
+
         boolean hasAfterLis = lisWrapper.isHasAfter();
         if (sync && hasAfterLis) {
             //如果同步并且还有after逻辑直接抛出异常

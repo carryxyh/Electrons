@@ -74,6 +74,7 @@ public abstract class AbstractChannel implements Channel {
         }
         ElectronsHolder eh = buffer.get(next);
         eh.setElectron(electronsHolder.getElectron());
+        eh.setListeners(electronsHolder.getListeners());
         buffer.publish(next);
         return true;
     }

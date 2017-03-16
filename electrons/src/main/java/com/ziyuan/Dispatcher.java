@@ -238,12 +238,12 @@ public final class Dispatcher {
 
         //没有找到监听器集合，并且不是HomelessEle，用homelessEle发一次
         if (lisWrapper == null) {
-            if (!electron.getClass().isAssignableFrom(HomelessEle.class)) {
-                HomelessEle homelessEle = new HomelessEle(electron.getSource());
-                return dispatch(tag, homelessEle, true);
-            } else {
+            if (electron.getClass().isAssignableFrom(HomelessEle.class)) {
                 //homelessEle还没找到监听器，return false
                 return false;
+            } else {
+                HomelessEle homelessEle = new HomelessEle(electron.getSource());
+                return dispatch(tag, homelessEle, true);
             }
         }
 

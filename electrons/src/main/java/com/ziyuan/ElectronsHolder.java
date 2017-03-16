@@ -7,6 +7,12 @@ import java.util.List;
 
 /**
  * ElectronsHolder 真正放在容器中的类，封装了electron和要执行他的监听器
+ * 这个类将来会重新抽象：
+ * 父类包含：
+ * electron
+ * <p>
+ * 子类包含：
+ * listeners
  *
  * @author ziyuan
  * @since 2017-03-10

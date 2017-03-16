@@ -39,13 +39,6 @@ public @interface Listener {
     int priority() default Byte.MIN_VALUE;
 
     /**
-     * 是否同步
-     *
-     * @return 该listener是否同步执行
-     */
-    boolean sync() default false;
-
-    /**
      * 订阅的类型
      *
      * @return 订阅的事件类型

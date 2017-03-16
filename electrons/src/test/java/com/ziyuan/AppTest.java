@@ -32,6 +32,9 @@ public class AppTest
     public void testApp() {
         System.out.println(HomelessEle.class.isAssignableFrom(HomelessEle.class));
         System.out.println(2 << 6);
-        assertTrue(true);
+
+        ElectronsListener electronsListener = new TestListener();
+        Listener ann = electronsListener.getClass().getAnnotation(Listener.class);
+        System.out.println(ann.id());
     }
 }

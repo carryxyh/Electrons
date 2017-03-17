@@ -57,16 +57,12 @@ public abstract class AbstractChannel implements Channel {
         if (!opened) {
             return false;
         }
-        //如果没有配置限速，直接返回
-        if (!limitRate) {
-            return false;
+        if (limitRate && rateLimiter != null) {
+            int weight = electronsHolder.getElectron().getWeight();
+            //等待
+            rateLimiter.acquire(weight);
         }
-        if (this.rateLimiter == null) {
-            return false;
-        }
-        int weight = electronsHolder.getElectron().getWeight();
-        //等待
-        rateLimiter.acquire(weight);
+        
         long next = buffer.tryNext();
         //the remaining capacity of the buffer < the size of the buffer * 0.2 日志输出提示告警
         if (buffer.remainingCapacity() < buffer.getBufferSize() * 0.2) {

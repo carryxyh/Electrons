@@ -88,6 +88,9 @@ public final class ListenerChainBuilder {
             Listener ann = listener.getClass().getAnnotation(Listener.class);
             String after = ann.after();
             String[] ids = after.split(",");
+            if (ids.length == 0) {
+                continue;
+            }
             for (String id : ids) {
                 ListenerChain chain = finalMap.get(id);
                 if (chain == null) {

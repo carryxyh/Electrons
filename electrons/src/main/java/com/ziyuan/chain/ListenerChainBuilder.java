@@ -1,7 +1,5 @@
 package com.ziyuan.chain;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.ElectronsHolder;
@@ -12,7 +10,7 @@ import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.*;
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -83,13 +81,7 @@ public final class ListenerChainBuilder {
         /**
          * 第三步，处理map中的元素，一个n方的循环，构建完成链
          */
-        Map<String, ListenerChain> finalMap;
-        try {
-            finalMap = deepClone(chainMap);
-        } catch (Exception e) {
-            //ignore
-            return;
-        }
+        Map<String, ListenerChain> finalMap = chainMap;
         for (Map.Entry<String, ListenerChain> entry : chainMap.entrySet()) {
             ListenerChain c = entry.getValue();
             ElectronsListener listener = c.getListener();
@@ -115,8 +107,8 @@ public final class ListenerChainBuilder {
             Listener ann = listener.getClass().getAnnotation(Listener.class);
             if (idOnly(ann.id(), ann.after())) {
                 //如果只有id 则处理disruptor，否则不处理
-                finalDeal(chain, disruptor);
                 disruptor.handleEventsWith(chain.getProxyHandler());
+                finalDeal(chain, disruptor);
             }
         }
     }
@@ -225,28 +217,5 @@ public final class ListenerChainBuilder {
             }
             this.afters.add(chain);
         }
-
-        public static Map<String, ListenerChain> buildMap(List<ElectronsListener> electronsListeners) {
-            List<ListenerChain> chains = new ArrayList<>();
-            for (ElectronsListener listener : electronsListeners) {
-                chains.add(new ListenerChain(listener));
-            }
-
-            return Maps.uniqueIndex(chains, new Function<ListenerChain, String>() {
-                @Override
-                public String apply(ListenerChain c) {
-                    return c.getId();
-                }
-            });
-        }
-    }
-
-    private static Map<String, ListenerChain> deepClone(Map<String, ListenerChain> map) throws IOException, ClassNotFoundException {
-        ByteArrayOutputStream bo = new ByteArrayOutputStream();
-        ObjectOutputStream oo = new ObjectOutputStream(bo);
-        oo.writeObject(map);
-        ByteArrayInputStream bi = new ByteArrayInputStream(bo.toByteArray());
-        ObjectInputStream oi = new ObjectInputStream(bi);
-        return (Map<String, ListenerChain>) oi.readObject();
     }
 }

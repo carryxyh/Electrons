@@ -61,13 +61,13 @@ public final class EleCircuit {
             logger.error("Circuit is running !");
             return false;
         }
+        started.set(true);
         try {
             scan();
         } catch (Exception e) {
             logger.error("Scan crash!", e);
         }
         dispatcher.start();
-        started.set(true);
         //添加钩子
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override

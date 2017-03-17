@@ -1,5 +1,7 @@
 package com.ziyuan.chain;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.ElectronsHolder;
@@ -37,55 +39,27 @@ public final class ListenerChainBuilder {
             return;
         }
 
-        /**
-         * 这是只有Id 或者 没有Id也没有after的监听器，所以可以一开始就直接handle
-         */
-        List<ElectronsListener> inits = new ArrayList<>();
-
-        /**
-         * 中间又有after 又有Id的 最难处理的部分
-         */
-        Map<String, ElectronsListener> between = new HashMap<>();
-
-        /**
-         * 这里是只有after的，这种只能作为监听器的最后一个部分
-         */
-        List<ElectronsListener> last = new ArrayList<>();
+        Map<String, ListenerChain> chainMap = new HashMap<>();
         for (ElectronsListener listener : electronsListeners) {
             Listener ann = listener.getClass().getAnnotation(Listener.class);
             String id = ann.id();
             String after = ann.after();
-            if ((StringUtils.isBlank(id) && StringUtils.isBlank(after)) || (StringUtils.isNotBlank(id) && StringUtils.isBlank(after))) {
-                inits.add(listener);
-            } else if (StringUtils.isNotBlank(after) && StringUtils.isBlank(id)) {
-                last.add(listener);
+            if ((StringUtils.isBlank(id) && StringUtils.isBlank(after))) {
+                //没有id没有after,直接handle就行了
+                disruptor.handleEventsWith(new ProxyHandler(listener));
+                continue;
+            } else if (StringUtils.isNotBlank(id) && StringUtils.isBlank(after)) {
+                //有Id没有after的
+                chainMap.put(id, new ListenerChain(listener));
+                continue;
             } else {
-                between.put(id, listener);
+                continue;
             }
         }
-    }
-
-    /**
-     * 实际上处理链的方法
-     *
-     * @param inits     开始的
-     * @param between   中间的 k:id v:listener
-     * @param last      最后的
-     * @param disruptor disruptor
-     */
-    private void actualDeal(List<ElectronsListener> inits, Map<String, ElectronsListener> between, List<ElectronsListener> last, Disruptor disruptor) {
-
-        ProxyHandler[] proxyHandlers = new ProxyHandler[inits.size()];
-        for (int i = 0; i < inits.size(); i++) {
-            proxyHandlers[i] = new ProxyHandler(inits.get(i));
-        }
-        disruptor.handleEventsWith(proxyHandlers);
-        /*-------------第一部分结束-------------*/
-
 
     }
 
-    private class ProxyHandler implements EventHandler {
+    private static class ProxyHandler implements EventHandler {
 
         private ElectronsListener listener;
 
@@ -99,13 +73,16 @@ public final class ListenerChainBuilder {
         }
     }
 
-    private static class ListenerChain {
+    private final static class ListenerChain {
 
         @Getter
         private String id;
 
+        /**
+         * 该listener之后执行的listener集合
+         */
         @Getter
-        private Set<String> afters = new HashSet<>();
+        private Set<ElectronsListener> afters = new HashSet<>();
 
         @Getter
         private ElectronsListener listener;
@@ -114,10 +91,24 @@ public final class ListenerChainBuilder {
             this.listener = lis;
             Listener ann = lis.getClass().getAnnotation(Listener.class);
             this.id = ann.id();
-            String[] afts = ann.after().split(",");
-            for (String aft : afts) {
-                this.afters.add(aft);
+        }
+
+        public void addAfter(ElectronsListener listener) {
+            this.afters.add(listener);
+        }
+
+        public static Map<String, ListenerChain> buildMap(List<ElectronsListener> electronsListeners) {
+            List<ListenerChain> chains = new ArrayList<>();
+            for (ElectronsListener listener : electronsListeners) {
+                chains.add(new ListenerChain(listener));
             }
+
+            return Maps.uniqueIndex(chains, new Function<ListenerChain, String>() {
+                @Override
+                public String apply(ListenerChain c) {
+                    return c.getId();
+                }
+            });
         }
     }
 }

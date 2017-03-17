@@ -36,5 +36,7 @@ public class AppTest
         ElectronsListener electronsListener = new TestListener();
         Listener ann = electronsListener.getClass().getAnnotation(Listener.class);
         System.out.println(ann.id());
+
+        System.out.println("2".split(",")[0]);
     }
 }

@@ -12,6 +12,7 @@ import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -35,12 +36,12 @@ public final class ListenerChainBuilder {
      * @param electronsListeners listeners
      */
     public final static void buildChain(Disruptor<ElectronsHolder> disruptor, List<ElectronsListener> electronsListeners) {
-        if (CollectionUtils.isEmpty(electronsListeners)) {
+        if (CollectionUtils.isEmpty(electronsListeners) || disruptor == null) {
             return;
         }
 
         /**
-         * 第一步，这里把只有id的放到map中，把没有id和没有after的直接运行掉
+         * 第一步，把没有id和没有after的直接运行掉，把有id的放到map中，只有after的继续放在list中
          */
         Map<String, ListenerChain> chainMap = new HashMap<>();
         Iterator<ElectronsListener> iterator = electronsListeners.iterator();
@@ -53,12 +54,52 @@ public final class ListenerChainBuilder {
                 //没有id没有after,直接handle就行了
                 disruptor.handleEventsWith(new ProxyHandler(listener));
                 iterator.remove();
-            } else if (idOnly(id, after)) {
-                //有Id没有after的
+            } else if (afterOnly(id, after)) {
+                //只有after的 continue
+                continue;
+            } else {
                 chainMap.put(id, new ListenerChain(listener));
                 iterator.remove();
             }
         }
+
+        /**
+         * 第二步，现在只剩下只有after的，把这些加入到map中有id的节点的后面，清理掉这个集合
+         */
+        for (ElectronsListener listener : electronsListeners) {
+            Listener ann = listener.getClass().getAnnotation(Listener.class);
+            String after = ann.after();
+            String[] ids = after.split(",");
+            for (String id : ids) {
+                ListenerChain chain = chainMap.get(id);
+                if (chain == null) {
+                    continue;
+                }
+                chain.addAfter(listener);
+            }
+        }
+        electronsListeners.clear();
+
+        /**
+         * 第三步，处理map中的元素，一个n方的循环，构建完成链
+         */
+        for (Map.Entry<String, ListenerChain> entry : chainMap.entrySet()) {
+            for (Map.Entry<String, ListenerChain> entryInside : chainMap.entrySet()) {
+
+            }
+
+        }
+    }
+
+    /**
+     * 只有after
+     *
+     * @param id
+     * @param after
+     * @return
+     */
+    private static boolean afterOnly(String id, String after) {
+        return StringUtils.isBlank(id) && StringUtils.isNotBlank(after);
     }
 
     /**
@@ -83,6 +124,9 @@ public final class ListenerChainBuilder {
         return StringUtils.isNotBlank(id) && StringUtils.isBlank(after);
     }
 
+    /**
+     * 监听器的代理类
+     */
     private static class ProxyHandler implements EventHandler {
 
         private ElectronsListener listener;
@@ -97,7 +141,7 @@ public final class ListenerChainBuilder {
         }
     }
 
-    private final static class ListenerChain {
+    private final static class ListenerChain implements Serializable {
 
         @Getter
         private String id;
@@ -106,7 +150,7 @@ public final class ListenerChainBuilder {
          * 该listener之后执行的listener集合
          */
         @Getter
-        private Set<ElectronsListener> afters = new HashSet<>();
+        private Set<ListenerChain> afters = new HashSet<>();
 
         @Getter
         private ElectronsListener listener;
@@ -118,7 +162,17 @@ public final class ListenerChainBuilder {
         }
 
         public void addAfter(ElectronsListener listener) {
-            this.afters.add(listener);
+            if (listener == null) {
+                return;
+            }
+            this.afters.add(new ListenerChain(listener));
+        }
+
+        public void addAfter(ListenerChain chain) {
+            if (listener == null) {
+                return;
+            }
+            this.afters.add(chain);
         }
 
         public static Map<String, ListenerChain> buildMap(List<ElectronsListener> electronsListeners) {

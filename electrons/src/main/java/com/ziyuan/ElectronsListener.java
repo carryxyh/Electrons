@@ -2,13 +2,15 @@ package com.ziyuan;
 
 import com.ziyuan.events.Electron;
 
+import java.io.Serializable;
+
 /**
  * ElectronsListener 电子监听器
  *
  * @author ziyuan
  * @since 2017-03-08
  */
-public interface ElectronsListener<E extends Electron> {
+public interface ElectronsListener<E extends Electron> extends Serializable {
 
     /**
      * 处理事件

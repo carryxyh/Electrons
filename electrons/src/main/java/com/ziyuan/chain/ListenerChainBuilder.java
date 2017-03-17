@@ -39,24 +39,48 @@ public final class ListenerChainBuilder {
             return;
         }
 
+        /**
+         * 第一步，这里把只有id的放到map中，把没有id和没有after的直接运行掉
+         */
         Map<String, ListenerChain> chainMap = new HashMap<>();
-        for (ElectronsListener listener : electronsListeners) {
+        Iterator<ElectronsListener> iterator = electronsListeners.iterator();
+        while (iterator.hasNext()) {
+            ElectronsListener listener = iterator.next();
             Listener ann = listener.getClass().getAnnotation(Listener.class);
             String id = ann.id();
             String after = ann.after();
-            if ((StringUtils.isBlank(id) && StringUtils.isBlank(after))) {
+            if (none(id, after)) {
                 //没有id没有after,直接handle就行了
                 disruptor.handleEventsWith(new ProxyHandler(listener));
-                continue;
-            } else if (StringUtils.isNotBlank(id) && StringUtils.isBlank(after)) {
+                iterator.remove();
+            } else if (idOnly(id, after)) {
                 //有Id没有after的
                 chainMap.put(id, new ListenerChain(listener));
-                continue;
-            } else {
-                continue;
+                iterator.remove();
             }
         }
+    }
 
+    /**
+     * id after都没有
+     *
+     * @param id
+     * @param after
+     * @return
+     */
+    private static boolean none(String id, String after) {
+        return StringUtils.isBlank(id) && StringUtils.isBlank(after);
+    }
+
+    /**
+     * 只有id
+     *
+     * @param id
+     * @param after
+     * @return
+     */
+    private static boolean idOnly(String id, String after) {
+        return StringUtils.isNotBlank(id) && StringUtils.isBlank(after);
     }
 
     private static class ProxyHandler implements EventHandler {

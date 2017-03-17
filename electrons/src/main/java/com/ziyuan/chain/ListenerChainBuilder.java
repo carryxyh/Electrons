@@ -12,7 +12,7 @@ import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -83,11 +83,58 @@ public final class ListenerChainBuilder {
         /**
          * 第三步，处理map中的元素，一个n方的循环，构建完成链
          */
+        Map<String, ListenerChain> finalMap;
+        try {
+            finalMap = deepClone(chainMap);
+        } catch (Exception e) {
+            //ignore
+            return;
+        }
         for (Map.Entry<String, ListenerChain> entry : chainMap.entrySet()) {
-            for (Map.Entry<String, ListenerChain> entryInside : chainMap.entrySet()) {
-
+            ListenerChain c = entry.getValue();
+            ElectronsListener listener = c.getListener();
+            Listener ann = listener.getClass().getAnnotation(Listener.class);
+            String after = ann.after();
+            String[] ids = after.split(",");
+            for (String id : ids) {
+                ListenerChain chain = finalMap.get(id);
+                if (chain == null) {
+                    continue;
+                }
+                chain.addAfter(c);
             }
+        }
+        chainMap.clear();
 
+        /**
+         * 最后一步，在map中找到只有id的，然后把disruptor传进去构建
+         */
+        for (Map.Entry<String, ListenerChain> entry : finalMap.entrySet()) {
+            ListenerChain chain = entry.getValue();
+            ElectronsListener listener = chain.getListener();
+            Listener ann = listener.getClass().getAnnotation(Listener.class);
+            if (idOnly(ann.id(), ann.after())) {
+                //如果只有id 则处理disruptor，否则不处理
+                finalDeal(chain, disruptor);
+                disruptor.handleEventsWith(chain.getProxyHandler());
+            }
+        }
+    }
+
+    /**
+     * 最终构建链
+     *
+     * @param chain
+     * @param disruptor
+     */
+    private static void finalDeal(ListenerChain chain, Disruptor disruptor) {
+        Set<ListenerChain> set = chain.getAfters();
+        if (CollectionUtils.isEmpty(set)) {
+            return;
+        }
+        for (ListenerChain ch : set) {
+            disruptor.after(chain.getProxyHandler()).handleEventsWith(ch.getProxyHandler());
+            finalDeal(ch, disruptor);
         }
     }
 
@@ -155,10 +202,14 @@ public final class ListenerChainBuilder {
         @Getter
         private ElectronsListener listener;
 
+        @Getter
+        private ProxyHandler proxyHandler;
+
         private ListenerChain(ElectronsListener lis) {
             this.listener = lis;
             Listener ann = lis.getClass().getAnnotation(Listener.class);
             this.id = ann.id();
+            this.proxyHandler = new ProxyHandler(lis);
         }
 
         public void addAfter(ElectronsListener listener) {
@@ -188,5 +239,14 @@ public final class ListenerChainBuilder {
                 }
             });
         }
+    }
+
+    private static Map<String, ListenerChain> deepClone(Map<String, ListenerChain> map) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream bo = new ByteArrayOutputStream();
+        ObjectOutputStream oo = new ObjectOutputStream(bo);
+        oo.writeObject(map);
+        ByteArrayInputStream bi = new ByteArrayInputStream(bo.toByteArray());
+        ObjectInputStream oi = new ObjectInputStream(bi);
+        return (Map<String, ListenerChain>) oi.readObject();
     }
 }

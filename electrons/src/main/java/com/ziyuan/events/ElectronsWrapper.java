@@ -62,7 +62,7 @@ public final class ElectronsWrapper {
 
     public String getSymbol() {
         StringBuilder builder = new StringBuilder();
-        builder.append(this.tag).append("-").append(this.source.getClass().getSimpleName());
+        builder.append(this.tag).append("-").append(((Class) this.source).getSimpleName());
         return builder.toString();
     }
 

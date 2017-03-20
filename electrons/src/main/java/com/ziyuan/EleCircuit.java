@@ -99,8 +99,7 @@ public final class EleCircuit {
         if (electron == null) {
             throw new NullPointerException("Electron can not be null !");
         }
-        dispatcher.dispatch(tag, electron, false);
-        return true;
+        return dispatcher.dispatch(tag, electron, false);
     }
 
     /**
@@ -118,8 +117,7 @@ public final class EleCircuit {
             throw new NullPointerException("Electron can not be null !");
         }
         //设置同步
-        dispatcher.dispatch(tag, electron, true);
-        return true;
+        return dispatcher.dispatch(tag, electron, true);
     }
 
     /**

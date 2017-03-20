@@ -5,7 +5,6 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.ElectronsHolder;
 import com.ziyuan.ElectronsListener;
 import com.ziyuan.Listener;
-import com.ziyuan.events.Electron;
 import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -88,7 +87,7 @@ public final class ListenerChainBuilder {
             Listener ann = listener.getClass().getAnnotation(Listener.class);
             String after = ann.after();
             String[] ids = after.split(",");
-            if (ids.length == 0) {
+            if (ids.length == 0 || (ids.length == 1 && StringUtils.isBlank(ids[0]))) {
                 continue;
             }
             for (String id : ids) {
@@ -99,7 +98,6 @@ public final class ListenerChainBuilder {
                 chain.addAfter(c);
             }
         }
-        chainMap.clear();
 
         /**
          * 最后一步，在map中找到只有id的，然后把disruptor传进去构建
@@ -169,7 +167,7 @@ public final class ListenerChainBuilder {
     /**
      * 监听器的代理类
      */
-    private static class ProxyHandler implements EventHandler {
+    private static class ProxyHandler implements EventHandler<ElectronsHolder> {
 
         private ElectronsListener listener;
 
@@ -178,8 +176,8 @@ public final class ListenerChainBuilder {
         }
 
         @Override
-        public void onEvent(Object o, long l, boolean b) throws Exception {
-            listener.onEvent((Electron) o);
+        public void onEvent(ElectronsHolder electronsHolder, long l, boolean b) throws Exception {
+            listener.onEvent(electronsHolder.getElectron());
         }
     }
 

@@ -1,7 +1,7 @@
 package com.ziyuan.exceptions;
 
 import com.lmax.disruptor.ExceptionHandler;
-import com.ziyuan.events.Electron;
+import com.ziyuan.ElectronsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  * @author ziyuan
  * @since 2017-03-08
  */
-public class ElecExceptionHandler<E extends Electron> implements ExceptionHandler<E> {
+public class ElecExceptionHandler implements ExceptionHandler<ElectronsHolder> {
 
     private final String disruptor;
 
@@ -26,37 +26,18 @@ public class ElecExceptionHandler<E extends Electron> implements ExceptionHandle
         this.disruptor = disruptor;
     }
 
-    /**
-     * handle异常
-     *
-     * @param ex    异常
-     * @param event 事件
-     * @since 1.0.0
-     */
     @Override
-    public void handleEventException(Throwable ex, long sequence, E event) {
-        logger.error("[{}] Event Exception:{},event:{}", disruptor, ex, event);
+    public void handleEventException(Throwable throwable, long l, ElectronsHolder electronsHolder) {
+        logger.error("[{}] Event Exception:{},event:{}", disruptor, throwable, electronsHolder);
     }
 
-    /**
-     * start异常
-     *
-     * @param ex 异常
-     * @since 1.0.0
-     */
     @Override
-    public void handleOnStartException(Throwable ex) {
-        logger.error("[{}] on start Exception:{}", disruptor, ex);
+    public void handleOnStartException(Throwable throwable) {
+        logger.error("[{}] on start Exception:{}", disruptor, throwable);
     }
 
-    /**
-     * shutdown异常
-     *
-     * @param ex 异常
-     * @since 1.0.0
-     */
     @Override
-    public void handleOnShutdownException(Throwable ex) {
-        logger.error("[{}] on shutdown Exception :", disruptor, ex);
+    public void handleOnShutdownException(Throwable throwable) {
+        logger.error("[{}] on shutdown Exception :", disruptor, throwable);
     }
 }

@@ -59,4 +59,9 @@ public final class ElectronsHolder {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return electron.getSource().getClass().getSimpleName() + " - ";
+    }
 }

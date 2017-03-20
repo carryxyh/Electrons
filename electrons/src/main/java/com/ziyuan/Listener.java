@@ -8,6 +8,7 @@ import java.lang.annotation.*;
  * 1.不支持同时存在priority和after，避免出现priority比某个listener大但是却要在这个listener之后执行的情况
  * 如果两个都设置，只生效after
  * 2.listener的async标识优先于全局异步
+ * 3.如果是尾节点，不能存在Id属性！！
  *
  * @author ziyuan
  * @since 2017-03-08

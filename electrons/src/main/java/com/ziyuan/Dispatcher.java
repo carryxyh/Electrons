@@ -2,6 +2,7 @@ package com.ziyuan;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.LiteBlockingWaitStrategy;
+import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.ziyuan.chain.ListenerChainBuilder;
@@ -106,11 +107,7 @@ public final class Dispatcher {
     }
 
     public Dispatcher(Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap, Config config) {
-        if (config != null) {
-            this.conf = config;
-        } else {
-            this.conf = new Config();
-        }
+        this.conf = config;
         if (wrapperMap == null || wrapperMap.size() == 0) {
             throw new NullPointerException("WrapperMap can not be null or contains nothing !");
         }
@@ -197,6 +194,14 @@ public final class Dispatcher {
                 return new ElectronsHolder();
             }
         }, conf.getCircuitLen(), pool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
+        WorkHandler[] workHandlers = new WorkHandler[conf.getCircuitNum()];
+        Arrays.fill(workHandlers, new WorkHandler<ElectronsHolder>() {
+            @Override
+            public void onEvent(ElectronsHolder electronsHolder) throws Exception {
+                electronsHolder.handle();
+            }
+        });
+        normalDis.handleEventsWithWorkerPool(workHandlers);
         normalDis.handleExceptionsWith(new ElecExceptionHandler("Normal Disruptor"));
 
         //初始化channel

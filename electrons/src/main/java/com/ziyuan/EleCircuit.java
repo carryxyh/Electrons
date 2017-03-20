@@ -1,6 +1,5 @@
 package com.ziyuan;
 
-import com.google.common.reflect.TypeToken;
 import com.ziyuan.events.Electron;
 import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
@@ -12,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,9 +40,22 @@ public final class EleCircuit {
      * 配置
      */
     @Setter
-    private Config conf = new Config();
+    private Config conf;
+
+    public EleCircuit(Config conf) {
+        this.conf = conf;
+        //添加钩子
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                stop();
+            }
+        }));
+    }
 
     public EleCircuit() {
+        conf = new Config();
+        //添加钩子
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
@@ -66,15 +79,9 @@ public final class EleCircuit {
             scan();
         } catch (Exception e) {
             logger.error("Scan crash!", e);
+            return false;
         }
         dispatcher.start();
-        //添加钩子
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                stop();
-            }
-        }));
         return true;
     }
 
@@ -136,6 +143,9 @@ public final class EleCircuit {
      * 扫描监听器
      */
     private void scan() throws Exception {
+        if (dispatcher != null) {
+            dispatcher.stop();
+        }
         // 扫描注解
         Set<Class<?>> clazzSet = ClassUtil.scanPackageByAnnotation(conf.getScanPackage(), conf.isScanJar(), Listener.class);
         if (CollectionUtils.isEmpty(clazzSet)) {
@@ -151,10 +161,7 @@ public final class EleCircuit {
         sort(allListeners);
         Map<ElectronsWrapper, ListenerCollectWrapper> wrapperMap = new HashMap<>();
         for (Class<? extends ElectronsListener> clazz : allListeners) {
-            TypeToken<Class<? extends ElectronsListener>> token = new TypeToken<Class<? extends ElectronsListener>>() {
-            };
-            TypeToken<?> generic = token.resolveType(clazz.getTypeParameters()[0]);
-            Type type = generic.getType();
+            Type type = ((ParameterizedType) clazz.getGenericInterfaces()[0]).getActualTypeArguments()[0];
 
             Listener ann = clazz.getAnnotation(Listener.class);
             String tag = ann.subscribe();
@@ -170,9 +177,6 @@ public final class EleCircuit {
                 listenerWrapper.setHasAfter(true);
             }
             wrapperMap.put(eleWrapper, listenerWrapper);
-        }
-        if (dispatcher != null) {
-            dispatcher.stop();
         }
         dispatcher = new Dispatcher(wrapperMap, conf);
     }

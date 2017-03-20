@@ -8,7 +8,6 @@ import com.ziyuan.events.Electron;
  * @author ziyuan
  * @since 2017-03-16
  */
-@Listener(id = "abc")
 public class TestListener implements ElectronsListener {
 
     @Override

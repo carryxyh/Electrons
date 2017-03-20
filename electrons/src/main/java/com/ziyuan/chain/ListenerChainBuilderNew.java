@@ -13,12 +13,18 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * ListenerChainBuilderNew
+ * ListenerChainBuilderNew 构建监听器链的工具类，旧版的废弃了，存在bug，思路不对
  *
  * @author ziyuan
  * @since 2017-03-20
  */
-public class ListenerChainBuilderNew {
+public final class ListenerChainBuilderNew {
+
+    /**
+     * 不允许初始化
+     */
+    private ListenerChainBuilderNew() {
+    }
 
     public final static void buildChain(Disruptor<ElectronsHolder> disruptor, List<ElectronsListener> electronsListeners) {
         if (CollectionUtils.isEmpty(electronsListeners) || disruptor == null) {

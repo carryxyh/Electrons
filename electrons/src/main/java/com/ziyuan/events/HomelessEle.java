@@ -6,7 +6,7 @@ package com.ziyuan.events;
  * @author ziyuan
  * @since 2017-03-08
  */
-public class HomelessEle extends Electron {
+public final class HomelessEle extends Electron {
 
     /**
      * Constructs a prototypical Event.

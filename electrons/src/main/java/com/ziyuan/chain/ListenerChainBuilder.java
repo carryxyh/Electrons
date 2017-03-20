@@ -14,10 +14,12 @@ import java.util.*;
 
 /**
  * ListenerChainBuilder 构造listener链的辅助类
+ * 老版本使用，现在已经废弃，仅做纪念T T
  *
  * @author ziyuan
  * @since 2017-03-09
  */
+@Deprecated
 public final class ListenerChainBuilder {
 
     /**

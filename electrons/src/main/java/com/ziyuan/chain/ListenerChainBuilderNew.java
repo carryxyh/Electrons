@@ -6,7 +6,6 @@ import com.ziyuan.ElectronsHolder;
 import com.ziyuan.ElectronsListener;
 import com.ziyuan.Listener;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -196,13 +195,6 @@ public class ListenerChainBuilderNew {
         private ElectronsListener listener;
 
         @Getter
-        @Setter
-        private int beforeHasHandle = 0;
-
-        @Getter
-        private int beforeAll = 0;
-
-        @Getter
         private ProxyHandler proxyHandler;
 
         private ListenerChain(ElectronsListener lis) {
@@ -218,15 +210,6 @@ public class ListenerChainBuilderNew {
                 return;
             }
             this.befores.add(listenerChain);
-            this.beforeAll++;
-        }
-
-        public void addBefore(ElectronsListener listener) {
-            if (listener == null) {
-                return;
-            }
-            this.befores.add(new ListenerChain(listener));
-            this.beforeAll++;
         }
     }
 }

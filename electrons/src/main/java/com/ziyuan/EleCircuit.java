@@ -193,7 +193,7 @@ public final class EleCircuit {
             public int compare(Class<? extends ElectronsListener> o1, Class<? extends ElectronsListener> o2) {
                 int x = o1.getAnnotation(Listener.class).priority();
                 int y = o2.getAnnotation(Listener.class).priority();
-                return (x < y) ? -1 : ((x == y) ? 0 : 1);
+                return (x < y) ? 1 : ((x == y) ? 0 : -1);
             }
         });
     }

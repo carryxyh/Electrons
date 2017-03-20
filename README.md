@@ -51,7 +51,7 @@ public class LongEvent extends Electron {
 其他例如事件的权重，可以在event中设置，方法是：<br/>
 
 ```
-	setWeight(int weight) {
+    setWeight(int weight) {
         this.weight = weight;
     }
 ```
@@ -136,3 +136,12 @@ public @interface Listener {
 2. 同步发布事件的说明：提供了同步发送的传统方式，这种方式会循环所有的监听器，*同步阻塞，直到所有的监听器执行完成*。由于上述那种A监听器执行完再执行监听器B的逻辑依赖disruptor的实现，所以***同步发布不支持存在after逻辑的监听器！***<br/>
 
 #### 架构设计<br/>
+
+
+#### 特别鸣谢<br/>
+**释迦**：帮我理顺思路以及链的遍历算法的完善。<br/>
+**排骨**：第一版本的开发者，看了代码之后决定重写一个更加完善、立体的插件。提供了工具类，参考了相关概念，是在1.0版本基础上的2.0版本。<br/>
+
+#### 关于<br/>
+[源码地址](https://github.com/carryxyh/Electrons)<br/>
+相关问题，二维火内部联系***紫苑***，非二维火同学联系我的邮箱：*ziyuan@2dfire.com*<br/>

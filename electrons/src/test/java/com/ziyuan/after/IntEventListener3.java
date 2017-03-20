@@ -10,6 +10,7 @@ import com.ziyuan.Listener;
  * @since 2017-03-20
  */
 @Listener(id = "3", subscribe = "after", after = "1")
+//@Listener(subscribe = "after", after = "1")
 public class IntEventListener3 implements ElectronsListener<IntEvent> {
 
     @Override

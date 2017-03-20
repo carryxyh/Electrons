@@ -5,7 +5,7 @@ import com.lmax.disruptor.LiteBlockingWaitStrategy;
 import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import com.ziyuan.chain.ListenerChainBuilder;
+import com.ziyuan.chain.ListenerChainBuilderNew;
 import com.ziyuan.channel.Channel;
 import com.ziyuan.channel.NormalChannel;
 import com.ziyuan.channel.SpecChannel;
@@ -174,7 +174,7 @@ public final class Dispatcher {
         disruptor.handleExceptionsWith(new ElecExceptionHandler("Spec Disruptor {" + symbol + "}"));
 
         //构建listener顺序
-        ListenerChainBuilder.buildChain(disruptor, listeners);
+        ListenerChainBuilderNew.buildChain(disruptor, listeners);
 
         //初始化管道并放入集合中
         Channel specChannel = new SpecChannel(disruptor);

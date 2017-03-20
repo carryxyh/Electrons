@@ -10,10 +10,11 @@ import com.ziyuan.Listener;
  * @since 2017-03-20
  */
 @Listener(id = "2", subscribe = "after", after = "1")
+//@Listener(subscribe = "after", after = "1")
 public class IntEventListener2 implements ElectronsListener<IntEvent> {
 
     @Override
     public void onEvent(IntEvent electrons) throws Exception {
-        System.out.println("after is doing...");
+        System.out.println("id 2 after is doing...");
     }
 }

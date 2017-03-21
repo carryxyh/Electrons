@@ -61,7 +61,7 @@ public class LongEvent extends Electron {
 再看看监听器，这个比较重要，先举个例子：<br/>
 
 ```
-@Listener(subscribe = "tag1")
+Listener(subscribe = "tag1")
 public class LongEventListener implements ElectronsListener<LongEvent> {
 
     @Override
@@ -123,11 +123,15 @@ public @interface Listener {
 * （**执行之后的意思就是执行完了之后**）<br/>
 
 这种情况下的`id`和`after`属性：<br/>
-* A的`id` -> 1，没有`after`属性<br/>
+* A的`id` -> 1，**没有`after`属性**<br/>
 * B的`id` -> 2，`after`属性为 -> "1"<br/>
 * C的`id` -> 3，`after`属性为 -> "1"<br/>
 * D的`id` -> 4，`after`属性为 -> "2"<br/>
-* E的`id` -> 5，`after`属性为 -> "3,4"（如果在多个监听器执行之后执行，`after`中的id用 **[ , ]** 隔开）<br/>
+* **E的`id` 不能存在**！`after`属性为 -> "3,4"（如果在多个监听器执行之后执行，`after`中的id用 **[ , ]** 隔开）<br/>
+
+模式图应该为下面这种情况：<br/>
+![Alt text](./监听器模型图.png)
+<br/>
 
 #### 其他使用注意事项<br/>
 1. 代理类的使用：提供了两种代理发布器，生产者消费者模型也存在容器满了的情况，这种情况如果直接使用`publish`方法需要用户自己处理异常，比较麻烦，现在提供了：**重发代理类**和**丢弃代理类**。作用：<br/>
@@ -136,7 +140,8 @@ public @interface Listener {
 2. 同步发布事件的说明：提供了同步发送的传统方式，这种方式会循环所有的监听器，*同步阻塞，直到所有的监听器执行完成*。由于上述那种A监听器执行完再执行监听器B的逻辑依赖disruptor的实现，所以***同步发布不支持存在after逻辑的监听器！***<br/>
 
 #### 架构设计<br/>
-
+![Alt text](./electrons架构图.png)
+<br/>
 
 #### 特别鸣谢<br/>
 **释迦**：帮我理顺思路以及链的遍历算法的完善。<br/>

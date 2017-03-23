@@ -15,6 +15,6 @@ public class IntEventListener2 implements ElectronsListener<IntEvent> {
 
     @Override
     public void onEvent(IntEvent electrons) throws Exception {
-        System.out.println("id 2 after is doing...");
+        System.out.println("middle 2 id 2 after is doing..." + "----------" + electrons.getSource() + "\n");
     }
 }

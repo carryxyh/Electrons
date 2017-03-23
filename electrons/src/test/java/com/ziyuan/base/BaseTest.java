@@ -38,7 +38,10 @@ public class BaseTest extends TestCase {
     public void testAfter() throws Exception {
         EleCircuit eleCircuit = new EleCircuit();
         eleCircuit.start();
-        boolean ok2 = eleCircuit.publish("after", new IntEvent(2));
+        boolean ok1 = eleCircuit.publish("after", new IntEvent(123));
+        boolean ok2 = eleCircuit.publish("after", new IntEvent(456));
+//        boolean ok2 = eleCircuit.publish("after", new IntEvent(456));
+        System.out.println(ok1);
         System.out.println(ok2);
         eleCircuit.stop();
     }

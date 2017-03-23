@@ -14,6 +14,5 @@ public class DoubleEventListener implements ElectronsListener<DoubleEvent> {
 
     @Override
     public void onEvent(DoubleEvent electrons) throws Exception {
-        System.out.println("id = 1" + electrons.getSource());
     }
 }

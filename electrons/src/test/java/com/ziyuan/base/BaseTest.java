@@ -3,9 +3,12 @@ package com.ziyuan.base;
 import com.ziyuan.Config;
 import com.ziyuan.EleCircuit;
 import com.ziyuan.after.IntEvent;
+import com.ziyuan.breaker.DoubleEvent;
 import com.ziyuan.priority.LongEvent2;
 import com.ziyuan.rateLimit.StringEvent;
 import junit.framework.TestCase;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * BaseTest
@@ -62,6 +65,43 @@ public class BaseTest extends TestCase {
         boolean ok2 = eleCircuit.publish("rateLimit", e2);
         System.out.println(ok1);
         System.out.println(ok2);
+        eleCircuit.stop();
+    }
+
+    public void testBreaker() throws Exception {
+        Config config = new Config();
+        config.setBreaker(true);
+
+        config.setErrorNum(2);
+        config.setPerUnit(1);
+        config.setUnit(TimeUnit.MINUTES);
+
+        config.setCloseThreshold(1);
+
+        config.setRest(10);
+        config.setRestUnit(TimeUnit.SECONDS);
+
+        EleCircuit eleCircuit = new EleCircuit(config);
+        eleCircuit.start();
+
+        eleCircuit.publish("breaker", new DoubleEvent(1.0));
+        eleCircuit.publish("breaker", new DoubleEvent(2.0));
+        eleCircuit.publish("breaker", new DoubleEvent(3.0));
+        eleCircuit.publish("breaker", new DoubleEvent(4.0));
+
+        eleCircuit.publish("breaker", new DoubleEvent(5.0));
+        eleCircuit.publish("breaker", new DoubleEvent(6.0));
+
+
+        eleCircuit.publish("breaker", new DoubleEvent(7.0));
+        eleCircuit.publish("breaker", new DoubleEvent(8.0));
+
+        Thread.sleep(10000);
+
+        eleCircuit.publish("breaker", new DoubleEvent(99.0));
+        eleCircuit.publish("breaker", new DoubleEvent(98.0));
+        eleCircuit.publish("breaker", new DoubleEvent(97.0));
+
         eleCircuit.stop();
     }
 }

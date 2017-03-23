@@ -93,6 +93,11 @@ public final class Config {
     private TimeUnit unit = TimeUnit.MINUTES;
 
     /**
+     * 关闭熔断的阈值
+     */
+    private int closeThreshold = 5;
+
+    /**
      * 休息多久
      */
     private int rest = 3;

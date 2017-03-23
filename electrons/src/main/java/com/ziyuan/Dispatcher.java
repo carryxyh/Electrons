@@ -16,7 +16,8 @@ import com.ziyuan.events.ListenerCollectWrapper;
 import com.ziyuan.exceptions.ElecExceptionHandler;
 import com.ziyuan.exceptions.OpNotSupportException;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.concurrent.EventCountCircuitBreaker;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -173,11 +174,16 @@ public final class Dispatcher {
         }, conf.getSpecCircuitLen(), specPool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
         disruptor.handleExceptionsWith(new ElecExceptionHandler("Spec Disruptor {" + symbol + "}"));
 
-        //构建listener顺序
-        ListenerChainBuilderNew.buildChain(disruptor, listeners);
-
         //初始化管道并放入集合中
-        Channel specChannel = new SpecChannel(disruptor);
+        SpecChannel specChannel = new SpecChannel(disruptor);
+        if (conf.isBreaker()) {
+            EventCountCircuitBreaker breaker = new EventCountCircuitBreaker(conf.getErrorNum(), conf.getPerUnit(), conf.getUnit(), conf.getCloseThreshold(), conf.getRest(), conf.getRestUnit());
+            specChannel.setBreaker(breaker);
+        }
+
+        //构建listener顺序
+        ListenerChainBuilderNew.buildChain(specChannel, listeners);
+
         channelMap.put(SPEC_CHANNEL_PREFIX + symbol, specChannel);
     }
 

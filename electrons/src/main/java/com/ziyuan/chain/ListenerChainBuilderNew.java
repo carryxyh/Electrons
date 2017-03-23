@@ -5,9 +5,12 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.ElectronsHolder;
 import com.ziyuan.ElectronsListener;
 import com.ziyuan.Listener;
+import com.ziyuan.channel.SpecChannel;
+import com.ziyuan.exceptions.SpecChannelBreakException;
 import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.concurrent.EventCountCircuitBreaker;
 
 import java.io.Serializable;
 import java.util.*;
@@ -26,14 +29,15 @@ public final class ListenerChainBuilderNew {
     private ListenerChainBuilderNew() {
     }
 
-    public final static void buildChain(Disruptor<ElectronsHolder> disruptor, List<ElectronsListener> electronsListeners) {
+    public final static void buildChain(SpecChannel specChannel, List<ElectronsListener> electronsListeners) {
+        Disruptor<ElectronsHolder> disruptor = specChannel.getDisruptor();
         if (CollectionUtils.isEmpty(electronsListeners) || disruptor == null) {
             return;
         }
 
         List<ListenerChain> chains = new ArrayList<>();
         for (ElectronsListener listener : electronsListeners) {
-            chains.add(new ListenerChain(listener));
+            chains.add(new ListenerChain(listener, specChannel));
         }
 
         /**
@@ -128,6 +132,10 @@ public final class ListenerChainBuilderNew {
         }
         for (String beforeId : ids) {
             ListenerChain c = listenerMap.get(beforeId);
+            if (c == null) {
+                //如果找不到直接continue
+                continue;
+            }
             addBeforeFromTail(c, listenerMap);
             chain.addBefore(c);
         }
@@ -171,23 +179,62 @@ public final class ListenerChainBuilderNew {
      */
     private static class ProxyHandler implements EventHandler<ElectronsHolder> {
 
+        /**
+         * 监听器
+         */
         private ElectronsListener listener;
 
-        public ProxyHandler(ElectronsListener listener) {
+        /**
+         * 该handler隶属的特殊管道
+         */
+        private SpecChannel specChannel;
+
+        public ProxyHandler(ElectronsListener listener, SpecChannel specChannel) {
             this.listener = listener;
+            this.specChannel = specChannel;
         }
 
         @Override
         public void onEvent(ElectronsHolder electronsHolder, long l, boolean b) throws Exception {
-            listener.onEvent(electronsHolder.getElectron());
+            if (specChannel.getBreaker() == null) {
+                listener.onEvent(electronsHolder.getElectron());
+            } else {
+                //开启熔断的逻辑
+                onEventWithBreaker(electronsHolder);
+            }
+        }
+
+        /**
+         * 熔断
+         *
+         * @param electronsHolder holder
+         * @throws Exception 异常
+         */
+        private void onEventWithBreaker(ElectronsHolder electronsHolder) throws Exception {
+            EventCountCircuitBreaker breaker = specChannel.getBreaker();
+            if (breaker.checkState()) {
+                try {
+                    listener.onEvent(electronsHolder.getElectron());
+                } catch (Exception e) {
+                    breaker.incrementAndCheckState();
+                }
+            } else {
+                throw new SpecChannelBreakException(listener.getClass().getSimpleName());
+            }
         }
     }
 
     private final static class ListenerChain implements Serializable {
 
+        /**
+         * 监听器id
+         */
         @Getter
         private String id;
 
+        /**
+         * 监听器的after属性
+         */
         @Getter
         private String after;
 
@@ -197,20 +244,31 @@ public final class ListenerChainBuilderNew {
         @Getter
         private List<ListenerChain> befores = new ArrayList<>();
 
+        /**
+         * 监听器
+         */
         @Getter
         private ElectronsListener listener;
 
+        /**
+         * 代理handler
+         */
         @Getter
         private ProxyHandler proxyHandler;
 
-        private ListenerChain(ElectronsListener lis) {
+        private ListenerChain(ElectronsListener lis, SpecChannel specChannel) {
             this.listener = lis;
             Listener ann = lis.getClass().getAnnotation(Listener.class);
             this.id = ann.id();
             this.after = ann.after();
-            this.proxyHandler = new ProxyHandler(lis);
+            this.proxyHandler = new ProxyHandler(lis, specChannel);
         }
 
+        /**
+         * 在before中加入一个
+         *
+         * @param listenerChain
+         */
         public void addBefore(ListenerChain listenerChain) {
             if (listenerChain == null) {
                 return;

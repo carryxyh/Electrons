@@ -42,6 +42,7 @@ public abstract class AbstractChannel implements Channel {
     /**
      * disruptor
      */
+    @Getter
     private final Disruptor<ElectronsHolder> disruptor;
 
     /**

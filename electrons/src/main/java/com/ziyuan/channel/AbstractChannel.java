@@ -62,7 +62,7 @@ public abstract class AbstractChannel implements Channel {
             //等待
             rateLimiter.acquire(weight);
         }
-        
+
         long next = buffer.tryNext();
         //the remaining capacity of the buffer < the size of the buffer * 0.2 日志输出提示告警
         if (buffer.remainingCapacity() < buffer.getBufferSize() * 0.2) {

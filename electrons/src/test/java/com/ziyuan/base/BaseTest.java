@@ -46,7 +46,7 @@ public class BaseTest extends TestCase {
     public void testRateLimit() throws Exception {
         Config config = new Config();
         config.setLimitRate(true);
-        config.setPerSecond(2);
+        config.setPermitsPerSecond(2);
         config.setWarmup(true);
 
         EleCircuit eleCircuit = new EleCircuit(config);

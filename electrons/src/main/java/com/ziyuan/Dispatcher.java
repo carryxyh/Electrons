@@ -207,7 +207,7 @@ public final class Dispatcher {
         //初始化channel
         Channel normalChannel = new NormalChannel(normalDis);
         //配置限流相关
-        normalChannel.confLimitRate(conf.isLimitRate(), conf.getPerSecond(), conf.isWarmup(), conf.getWarmupPeriod(), conf.getWarmPeriodUnit());
+        normalChannel.confLimitRate(conf.isLimitRate(), conf.getPermitsPerSecond(), conf.isWarmup(), conf.getWarmupPeriod(), conf.getWarmPeriodUnit());
         channelMap.put(NORMAL_CHANNEL_KEY, normalChannel);
     }
 

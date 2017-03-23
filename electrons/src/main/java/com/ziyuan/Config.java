@@ -19,12 +19,12 @@ public final class Config {
     private int circuitNum = 8;
 
     /**
-     * 特殊电路的数量
+     * 特殊电路的数量(如果存在特殊电路，这个值才会生效)
      */
     private int specCircuitNum = 3;
 
     /**
-     * 512
+     * 电路长度，即buffer的size 默认512
      */
     private int circuitLen = 2 << 8;
 
@@ -68,7 +68,7 @@ public final class Config {
     /**
      * 每秒64个令牌
      */
-    private double perSecond = 2 << 5;
+    private double permitsPerSecond = 2 << 5;
 
     /*------------------------------------熔断相关 默认：每两分钟内出现5个错误，就休息3分钟---------------------------------------*/
 

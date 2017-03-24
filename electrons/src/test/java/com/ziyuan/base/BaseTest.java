@@ -76,7 +76,7 @@ public class BaseTest extends TestCase {
         config.setPerUnit(1);
         config.setUnit(TimeUnit.MINUTES);
 
-        config.setCloseThreshold(1);
+        config.setCloseThreshold(2);
 
         config.setRest(10);
         config.setRestUnit(TimeUnit.SECONDS);
@@ -87,20 +87,27 @@ public class BaseTest extends TestCase {
         eleCircuit.publish("breaker", new DoubleEvent(1.0));
         eleCircuit.publish("breaker", new DoubleEvent(2.0));
         eleCircuit.publish("breaker", new DoubleEvent(3.0));
-        eleCircuit.publish("breaker", new DoubleEvent(4.0));
 
+        //4以后的会熔断
+
+        eleCircuit.publish("breaker", new DoubleEvent(4.0));
         eleCircuit.publish("breaker", new DoubleEvent(5.0));
         eleCircuit.publish("breaker", new DoubleEvent(6.0));
-
-
         eleCircuit.publish("breaker", new DoubleEvent(7.0));
         eleCircuit.publish("breaker", new DoubleEvent(8.0));
 
-        Thread.sleep(10000);
+        System.out.println("\n");
+        Thread.sleep(12000);
+        System.out.println(" after sleeps \n");
 
         eleCircuit.publish("breaker", new DoubleEvent(99.0));
         eleCircuit.publish("breaker", new DoubleEvent(98.0));
         eleCircuit.publish("breaker", new DoubleEvent(97.0));
+
+        eleCircuit.publish("breaker", new DoubleEvent(96.0));
+        eleCircuit.publish("breaker", new DoubleEvent(95.0));
+        eleCircuit.publish("breaker", new DoubleEvent(94.0));
+        eleCircuit.publish("breaker", new DoubleEvent(93.0));
 
         eleCircuit.stop();
     }

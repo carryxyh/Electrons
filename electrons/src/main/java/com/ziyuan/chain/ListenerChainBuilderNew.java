@@ -5,12 +5,15 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.ElectronsHolder;
 import com.ziyuan.ElectronsListener;
 import com.ziyuan.Listener;
+import com.ziyuan.channel.AbstractChannel;
 import com.ziyuan.channel.SpecChannel;
 import com.ziyuan.exceptions.SpecChannelBreakException;
 import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.EventCountCircuitBreaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.*;
@@ -22,6 +25,11 @@ import java.util.*;
  * @since 2017-03-20
  */
 public final class ListenerChainBuilderNew {
+
+    /**
+     * logger
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractChannel.class);
 
     /**
      * 不允许初始化
@@ -216,6 +224,7 @@ public final class ListenerChainBuilderNew {
                 try {
                     listener.onEvent(electronsHolder.getElectron());
                 } catch (Exception e) {
+                    LOGGER.error(e.getMessage() + " -- ListenerName is : " + listener.getClass().getSimpleName());
                     breaker.incrementAndCheckState();
                 }
             } else {

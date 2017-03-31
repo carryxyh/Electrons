@@ -1,6 +1,7 @@
 package com.ziyuan.channel;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.lmax.disruptor.EventTranslatorOneArg;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.ziyuan.ElectronsHolder;
@@ -50,6 +51,14 @@ public abstract class AbstractChannel implements Channel {
      */
     protected RingBuffer<ElectronsHolder> buffer;
 
+    private static final EventTranslatorOneArg<ElectronsHolder, ElectronsHolder> TRANSLATOR_ONE_ARG = new EventTranslatorOneArg<ElectronsHolder, ElectronsHolder>() {
+        @Override
+        public void translateTo(ElectronsHolder event, long sequence, ElectronsHolder arg0) {
+            event.setListeners(arg0.getListeners());
+            event.setElectron(arg0.getElectron());
+        }
+    };
+
     public AbstractChannel(Disruptor<ElectronsHolder> disruptor) {
         this.disruptor = disruptor;
     }
@@ -64,16 +73,17 @@ public abstract class AbstractChannel implements Channel {
             rateLimiter.acquire(weight);
         }
 
-        long next = buffer.tryNext();
         //the remaining capacity of the buffer < the size of the buffer * 0.2 日志输出提示告警
         if (buffer.remainingCapacity() < buffer.getBufferSize() * 0.2) {
             LOGGER.warn("commandBus consume warn message, remainingCapacity size:" + buffer.remainingCapacity() + ",conRingBuffer size:" + buffer.getBufferSize());
         }
-        ElectronsHolder eh = buffer.get(next);
-        eh.setElectron(electronsHolder.getElectron());
-        eh.setListeners(electronsHolder.getListeners());
-        buffer.publish(next);
-        return true;
+//        long next = buffer.tryNext();
+//        ElectronsHolder eh = buffer.get(next);
+//        eh.setElectron(electronsHolder.getElectron());
+//        eh.setListeners(electronsHolder.getListeners());
+//        buffer.publish(next);
+//        return true;
+        return buffer.tryPublishEvent(TRANSLATOR_ONE_ARG, electronsHolder);
     }
 
     @Override

@@ -23,7 +23,10 @@ public class RetryDelegate extends AbstractDelegatePublisher {
     public void publish(String tag, Electron electron) {
 
         try {
-            super.getEleCircuit().publish(tag, electron);
+            boolean result = super.getEleCircuit().publish(tag, electron);
+            if (!result) {
+                retry(tag, electron);
+            }
         } catch (Exception e) {
             if (e instanceof InsufficientCapacityException) {
                 //满了，睡眠300ms重试

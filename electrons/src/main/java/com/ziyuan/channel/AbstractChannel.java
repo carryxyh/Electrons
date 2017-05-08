@@ -77,14 +77,14 @@ public abstract class AbstractChannel implements Channel {
         if (buffer.remainingCapacity() < buffer.getBufferSize() * 0.2) {
             LOGGER.warn("commandBus consume warn message, remainingCapacity size:" + buffer.remainingCapacity() + ",conRingBuffer size:" + buffer.getBufferSize());
         }
+        return buffer.tryPublishEvent(TRANSLATOR_ONE_ARG, electronsHolder);
+    }
 //        long next = buffer.tryNext();
 //        ElectronsHolder eh = buffer.get(next);
 //        eh.setElectron(electronsHolder.getElectron());
 //        eh.setListeners(electronsHolder.getListeners());
 //        buffer.publish(next);
 //        return true;
-        return buffer.tryPublishEvent(TRANSLATOR_ONE_ARG, electronsHolder);
-    }
 
     @Override
     public synchronized void open() {

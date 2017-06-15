@@ -42,7 +42,7 @@ public final class EleCircuit {
     @Setter
     private Config conf;
 
-    public EleCircuit(Config conf) {
+    private EleCircuit(Config conf) {
         this.conf = conf;
         //添加钩子
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -53,7 +53,7 @@ public final class EleCircuit {
         }));
     }
 
-    public EleCircuit() {
+    private EleCircuit() {
         conf = new Config();
         //添加钩子
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -69,7 +69,7 @@ public final class EleCircuit {
      *
      * @return
      */
-    public synchronized boolean start() {
+    private synchronized boolean start() {
         if (started.get()) {
             logger.error("Circuit is running !");
             return false;
@@ -83,6 +83,30 @@ public final class EleCircuit {
         }
         dispatcher.start();
         return true;
+    }
+
+    /**
+     * 直接准备好一个EleCircuit.
+     *
+     * @return 电路
+     */
+    public static synchronized EleCircuit ready() {
+        return ready(new Config());
+    }
+
+    /**
+     * 根据Config准备好一个配置过的EleCircuit.
+     *
+     * @param conf 配置
+     * @return 电路
+     */
+    public static synchronized EleCircuit ready(Config conf) {
+        if (conf == null) {
+            throw new NullPointerException("EleCircuit Config is null !");
+        }
+        EleCircuit eleCircuit = new EleCircuit(conf);
+        eleCircuit.start();
+        return eleCircuit;
     }
 
     /**

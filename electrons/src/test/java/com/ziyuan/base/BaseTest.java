@@ -65,7 +65,7 @@ public class BaseTest extends TestCase {
 //        EleCircuit eleCircuit = new EleCircuit(config);
 //        eleCircuit.start();
 
-        EleCircuit eleCircuit = EleCircuit.ready(config);
+        EleCircuit eleCircuit = EleCircuit.ready();
         StringEvent e1 = new StringEvent("weight 10");
         e1.setWeight(10);
         StringEvent e2 = new StringEvent("weight 20");
@@ -93,7 +93,7 @@ public class BaseTest extends TestCase {
 //        EleCircuit eleCircuit = new EleCircuit(config);
 //        eleCircuit.start();
 
-        EleCircuit eleCircuit = EleCircuit.ready(config);
+        EleCircuit eleCircuit = EleCircuit.ready();
         eleCircuit.publish("breaker", new DoubleEvent(1.0));
         eleCircuit.publish("breaker", new DoubleEvent(2.0));
         eleCircuit.publish("breaker", new DoubleEvent(3.0));

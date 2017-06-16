@@ -1,6 +1,7 @@
 package com.ziyuan;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.concurrent.TimeUnit;
 
@@ -11,7 +12,13 @@ import java.util.concurrent.TimeUnit;
  * @since 2017-03-08
  */
 @Data
+@ToString
 public final class Config {
+
+    /**
+     * 电路是否打开，目前只支持true，后面总线可能用队列，则关闭时用队列
+     */
+    private boolean eleOpen = true;
 
     /**
      * 电路数量

@@ -5,6 +5,7 @@ import com.ziyuan.events.ElectronsWrapper;
 import com.ziyuan.events.ListenerCollectWrapper;
 import com.ziyuan.exceptions.CircuitCongestedException;
 import com.ziyuan.util.ClassUtil;
+import com.ziyuan.util.TypeSafeUtil;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,34 +43,12 @@ public final class EleCircuit {
     @Setter
     private Config conf;
 
-    public EleCircuit(Config conf) {
-        this.conf = conf;
-        //添加钩子
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                stop();
-            }
-        }));
-    }
-
-    public EleCircuit() {
-        conf = new Config();
-        //添加钩子
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                stop();
-            }
-        }));
-    }
-
     /**
      * 启动
      *
      * @return
      */
-    public synchronized boolean start() {
+    private synchronized boolean start() {
         if (started.get()) {
             logger.error("Circuit is running !");
             return false;
@@ -83,6 +62,19 @@ public final class EleCircuit {
         }
         dispatcher.start();
         return true;
+    }
+
+    /**
+     * 直接准备好一个EleCircuit.
+     *
+     * @return 电路
+     */
+    public static synchronized EleCircuit ready() {
+        Config config = TypeSafeUtil.getConfig();
+        EleCircuit eleCircuit = new EleCircuit();
+        eleCircuit.conf = config;
+        eleCircuit.start();
+        return eleCircuit;
     }
 
     /**

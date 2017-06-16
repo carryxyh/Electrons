@@ -19,8 +19,10 @@ import java.util.concurrent.TimeUnit;
 public class BaseTest extends TestCase {
 
     public void testBase() throws Exception {
-        EleCircuit eleCircuit = new EleCircuit();
-        eleCircuit.start();
+//        EleCircuit eleCircuit = new EleCircuit();
+//        eleCircuit.start();
+
+        EleCircuit eleCircuit = EleCircuit.ready();
         boolean ok1 = eleCircuit.publish("tag1", new LongEvent(1));
         boolean ok2 = eleCircuit.publish("tag1", new LongEvent(2));
         System.out.println(ok1);
@@ -29,8 +31,10 @@ public class BaseTest extends TestCase {
     }
 
     public void testPriority() throws Exception {
-        EleCircuit eleCircuit = new EleCircuit();
-        eleCircuit.start();
+//        EleCircuit eleCircuit = new EleCircuit();
+//        eleCircuit.start();
+
+        EleCircuit eleCircuit = EleCircuit.ready();
         boolean ok1 = eleCircuit.publish("tag2", new LongEvent2(1));
         boolean ok2 = eleCircuit.publish("tag2", new LongEvent2(2));
         System.out.println(ok1);
@@ -39,8 +43,10 @@ public class BaseTest extends TestCase {
     }
 
     public void testAfter() throws Exception {
-        EleCircuit eleCircuit = new EleCircuit();
-        eleCircuit.start();
+//        EleCircuit eleCircuit = new EleCircuit();
+//        eleCircuit.start();
+
+        EleCircuit eleCircuit = EleCircuit.ready();
 //        boolean ok1 = eleCircuit.publish("after", new IntEvent(123));
         boolean ok2 = eleCircuit.publish("after", new IntEvent(456));
 //        boolean ok2 = eleCircuit.publish("after", new IntEvent(456));
@@ -56,8 +62,10 @@ public class BaseTest extends TestCase {
         config.setPermitsPerSecond(2);
         config.setWarmup(true);
 
-        EleCircuit eleCircuit = new EleCircuit(config);
-        eleCircuit.start();
+//        EleCircuit eleCircuit = new EleCircuit(config);
+//        eleCircuit.start();
+
+        EleCircuit eleCircuit = EleCircuit.ready();
         StringEvent e1 = new StringEvent("weight 10");
         e1.setWeight(10);
         StringEvent e2 = new StringEvent("weight 20");
@@ -82,9 +90,10 @@ public class BaseTest extends TestCase {
         config.setRest(10);
         config.setRestUnit(TimeUnit.SECONDS);
 
-        EleCircuit eleCircuit = new EleCircuit(config);
-        eleCircuit.start();
+//        EleCircuit eleCircuit = new EleCircuit(config);
+//        eleCircuit.start();
 
+        EleCircuit eleCircuit = EleCircuit.ready();
         eleCircuit.publish("breaker", new DoubleEvent(1.0));
         eleCircuit.publish("breaker", new DoubleEvent(2.0));
         eleCircuit.publish("breaker", new DoubleEvent(3.0));

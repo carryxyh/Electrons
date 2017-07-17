@@ -47,7 +47,7 @@ public final class Dispatcher {
     /**
      * 针对有after逻辑的特殊管道
      */
-    private static final String SPEC_CHANNEL_PREFIX = "spec_channel:";
+    private static final String SPEC_CHANNEL_PREFIX = "spec_channel";
 
     /**
      * normal channel的key
@@ -165,7 +165,7 @@ public final class Dispatcher {
         });
         pools.add(specPool);
 
-        Disruptor<ElectronsHolder> disruptor = new Disruptor<ElectronsHolder>(new EventFactory<ElectronsHolder>() {
+        Disruptor<ElectronsHolder> disruptor = new Disruptor<>(new EventFactory<ElectronsHolder>() {
 
             @Override
             public ElectronsHolder newInstance() {

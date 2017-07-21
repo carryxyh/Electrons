@@ -1,7 +1,6 @@
 package com.ziyuan.after;
 
 import com.ziyuan.ElectronsListener;
-import com.ziyuan.Listener;
 
 /**
  * IntEventListener3
@@ -9,7 +8,8 @@ import com.ziyuan.Listener;
  * @author ziyuan
  * @since 2017-03-20
  */
-@Listener(id = "3", subscribe = "after", after = "1")
+//@Listener(id = "3", subscribe = "after")
+//@Listener(id = "3", subscribe = "after", after = "1")
 //@Listener(subscribe = "after", after = "1")
 public class IntEventListener3 implements ElectronsListener<IntEvent> {
 

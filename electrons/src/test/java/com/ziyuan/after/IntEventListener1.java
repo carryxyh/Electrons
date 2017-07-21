@@ -1,7 +1,6 @@
 package com.ziyuan.after;
 
 import com.ziyuan.ElectronsListener;
-import com.ziyuan.Listener;
 
 /**
  * IntEventListener1
@@ -9,7 +8,7 @@ import com.ziyuan.Listener;
  * @author ziyuan
  * @since 2017-03-20
  */
-@Listener(subscribe = "after", id = "1")
+//@Listener(subscribe = "after", id = "1")
 public class IntEventListener1 implements ElectronsListener<IntEvent> {
 
     @Override

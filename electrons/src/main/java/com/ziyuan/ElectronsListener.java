@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 /**
  * ElectronsListener 电子监听器
+ * TODO 应该会移除一个接口。
  *
  * @author ziyuan
  * @since 2017-03-08

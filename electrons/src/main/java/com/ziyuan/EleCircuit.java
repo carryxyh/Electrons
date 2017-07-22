@@ -131,6 +131,8 @@ public final class EleCircuit {
 
     /**
      * 扫描监听器
+     *
+     * TODO 需要重新考虑一下监听器加载的过程
      */
     private void scan() throws Exception {
         if (dispatcher != null) {

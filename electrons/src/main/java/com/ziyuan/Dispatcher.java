@@ -41,6 +41,8 @@ public final class Dispatcher {
 
     /**
      * 通道 特殊通道的键：前缀:tag-class.simpleName
+     *
+     * TODO 应该会移除这个channelMap 改成两个不同的事件发布者
      */
     private Map<String, Channel> channelMap = new HashMap<>();
 

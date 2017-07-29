@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Config
+ * 配置的内容都在eleconfig.conf中
  *
  * @author ziyuan
  * @since 2017-03-08

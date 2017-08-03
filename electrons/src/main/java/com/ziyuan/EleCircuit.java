@@ -131,7 +131,7 @@ public final class EleCircuit {
 
     /**
      * 扫描监听器
-     *
+     * <p>
      * TODO 需要重新考虑一下监听器加载的过程
      */
     private void scan() throws Exception {
@@ -179,14 +179,10 @@ public final class EleCircuit {
      * @param listenerClazz listener的集合
      */
     public void sort(List<Class<? extends ElectronsListener>> listenerClazz) {
-        Collections.sort(listenerClazz, new Comparator<Class<? extends ElectronsListener>>() {
-
-            @Override
-            public int compare(Class<? extends ElectronsListener> o1, Class<? extends ElectronsListener> o2) {
-                int x = o1.getAnnotation(Listener.class).priority();
-                int y = o2.getAnnotation(Listener.class).priority();
-                return (x < y) ? 1 : ((x == y) ? 0 : -1);
-            }
+        Collections.sort(listenerClazz, (o1, o2) -> {
+            int x = o1.getAnnotation(Listener.class).priority();
+            int y = o2.getAnnotation(Listener.class).priority();
+            return (x < y) ? 1 : ((x == y) ? 0 : -1);
         });
     }
 }

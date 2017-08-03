@@ -9,7 +9,6 @@ import java.lang.annotation.*;
  * 如果两个都设置，只生效after
  * 2.listener的async标识优先于全局异步
  * 3.如果是尾节点，不能存在Id属性！！
- * TODO 目前来看需要新增一个 method 属性。
  *
  * @author ziyuan
  * @since 2017-03-08
@@ -25,6 +24,15 @@ public @interface Listener {
      * @return 这个listener的id
      */
     String id() default "";
+
+    /**
+     * 监听器要执行的方法名，默认方法名onEvent
+     * <p>
+     * 注册的方法必须有一个参数为Electron的实例
+     *
+     * @return 监听器要执行的方法名
+     */
+    String method() default "onEvent";
 
     /**
      * after标识这个listener在某个listener之后执行，返回一个string，是id的集合，用【,】分割

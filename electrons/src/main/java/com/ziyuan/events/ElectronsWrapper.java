@@ -16,6 +16,11 @@ public final class ElectronsWrapper {
     private String tag;
 
     /**
+     * hash码
+     */
+    private int hash;
+
+    /**
      * 事件源
      */
     private Type source;
@@ -27,11 +32,15 @@ public final class ElectronsWrapper {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((tag == null) ? 0 : tag.hashCode());
-        result = prime * result + ((source == null) ? 0 : source.hashCode());
-        return result;
+        int h = hash;
+        if (h == 0 && tag != null && source != null) {
+            h = 1;
+            int prime = 31;
+            h = prime * h + tag.hashCode();
+            h = prime * h + source.hashCode();
+            hash = h;
+        }
+        return h;
     }
 
     @Override

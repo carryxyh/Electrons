@@ -4,6 +4,7 @@ import com.ziyuan.Config;
 import com.ziyuan.EleCircuit;
 import com.ziyuan.after.IntEvent;
 import com.ziyuan.breaker.DoubleEvent;
+import com.ziyuan.ex.EleEvent;
 import com.ziyuan.priority.LongEvent2;
 import com.ziyuan.rateLimit.StringEvent;
 import junit.framework.TestCase;
@@ -120,5 +121,28 @@ public class BaseTest extends TestCase {
         eleCircuit.publish("breaker", new DoubleEvent(93.0));
 
         eleCircuit.stop();
+    }
+
+    /**
+     * 如果我们在handleEventException中抛出一个运行时异常，load会飙升到100%，我们jstack这个java线程，会发现只有一个是runnable状态，而其他线程都在wait。
+     * 我们可以从jstack中看到，是在liteWaitStrategy中的56行park住了，查看代码我们可以看到，这一行执行了：
+     * processorNotifyCondition.await();
+     * <p>
+     * 而runnable的部分，则一直在执行：
+     * while ((availableSequence = dependentSequence.get()) < sequence)
+     * {
+     * barrier.checkAlert();
+     * }
+     * <p>
+     * 这段代码在执行的就是，等待前一个消费者执行完成，由于抛异常，导致上一个消费者break掉了，所以上一个消费者用于不会返回
+     *
+     * @throws Exception
+     */
+    public void testEx() throws Exception {
+        EleCircuit eleCircuit = EleCircuit.ready();
+        for (; ; ) {
+            Thread.sleep(100);
+            eleCircuit.publish("ex", new EleEvent(1));
+        }
     }
 }

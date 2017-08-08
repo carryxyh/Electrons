@@ -29,6 +29,7 @@ public class ElecExceptionHandler implements ExceptionHandler<ElectronsHolder> {
     @Override
     public void handleEventException(Throwable throwable, long l, ElectronsHolder electronsHolder) {
         logger.error("[{}] Event Exception:{},event:{}", disruptor, throwable, electronsHolder);
+//        throw new RuntimeException("ex...");
     }
 
     @Override

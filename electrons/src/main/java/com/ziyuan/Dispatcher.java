@@ -1,6 +1,5 @@
 package com.ziyuan;
 
-import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.LiteBlockingWaitStrategy;
 import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.dsl.Disruptor;
@@ -167,13 +166,7 @@ public final class Dispatcher {
         });
         pools.add(specPool);
 
-        Disruptor<ElectronsHolder> disruptor = new Disruptor<>(new EventFactory<ElectronsHolder>() {
-
-            @Override
-            public ElectronsHolder newInstance() {
-                return new ElectronsHolder();
-            }
-        }, conf.getSpecCircuitLen(), specPool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
+        Disruptor<ElectronsHolder> disruptor = new Disruptor<>(ElectronsHolder::new, conf.getSpecCircuitLen(), specPool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
         disruptor.handleExceptionsWith(new ElecExceptionHandler("Spec Disruptor {" + symbol + "}"));
 
         //初始化管道并放入集合中
@@ -195,20 +188,9 @@ public final class Dispatcher {
      * @param pool 线程池
      */
     private void initNormalChannel(ExecutorService pool) {
-        Disruptor<ElectronsHolder> normalDis = new Disruptor<>(new EventFactory<ElectronsHolder>() {
-
-            @Override
-            public ElectronsHolder newInstance() {
-                return new ElectronsHolder();
-            }
-        }, conf.getCircuitLen(), pool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
+        Disruptor<ElectronsHolder> normalDis = new Disruptor<>(ElectronsHolder::new, conf.getCircuitLen(), pool, ProducerType.MULTI, new LiteBlockingWaitStrategy());
         WorkHandler[] workHandlers = new WorkHandler[conf.getCircuitNum()];
-        Arrays.fill(workHandlers, new WorkHandler<ElectronsHolder>() {
-            @Override
-            public void onEvent(ElectronsHolder electronsHolder) throws Exception {
-                electronsHolder.handle();
-            }
-        });
+        Arrays.fill(workHandlers, (WorkHandler<ElectronsHolder>) electronsHolder -> electronsHolder.handle());
         normalDis.handleEventsWithWorkerPool(workHandlers);
         normalDis.handleExceptionsWith(new ElecExceptionHandler("Normal Disruptor"));
 

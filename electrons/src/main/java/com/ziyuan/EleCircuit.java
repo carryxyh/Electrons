@@ -50,7 +50,7 @@ public final class EleCircuit {
      */
     private synchronized boolean start() {
         if (started.get()) {
-            logger.error("Circuit is running !");
+            logger.warn("Circuit is running !");
             return false;
         }
         started.set(true);

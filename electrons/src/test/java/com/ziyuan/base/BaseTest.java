@@ -28,6 +28,8 @@ public class BaseTest extends TestCase {
         boolean ok2 = eleCircuit.publish("tag1", new LongEvent(2));
         System.out.println(ok1);
         System.out.println(ok2);
+        //输入任意字符停止
+        System.in.read();
         eleCircuit.stop();
     }
 

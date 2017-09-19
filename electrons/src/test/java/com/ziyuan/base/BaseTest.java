@@ -53,7 +53,8 @@ public class BaseTest extends TestCase {
 //        boolean ok2 = eleCircuit.publish("after", new IntEvent(456));
 //        System.out.println(ok1);
         System.out.println(ok2);
-        Thread.sleep(5000);
+        //输入任意字符停止
+        System.in.read();
         eleCircuit.stop();
     }
 

@@ -1,7 +1,6 @@
 package com.ziyuan.rateLimit;
 
 import com.ziyuan.ElectronsListener;
-import com.ziyuan.Listener;
 
 /**
  * StringEventListener
@@ -9,7 +8,7 @@ import com.ziyuan.Listener;
  * @author ziyuan
  * @since 2017-03-23
  */
-@Listener(subscribe = "rateLimit", id = "1")
+//@Listener(subscribe = "rateLimit", id = "1")
 public class StringEventListener implements ElectronsListener<StringEvent> {
 
     @Override

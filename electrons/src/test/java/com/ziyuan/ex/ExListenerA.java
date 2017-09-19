@@ -1,7 +1,6 @@
 package com.ziyuan.ex;
 
 import com.ziyuan.ElectronsListener;
-import com.ziyuan.Listener;
 
 /**
  * ExListenerA
@@ -9,7 +8,7 @@ import com.ziyuan.Listener;
  * @author ziyuan
  * @since 2017-08-08
  */
-@Listener(subscribe = "ex", id = "ex1")
+//@Listener(subscribe = "ex", id = "ex1")
 public class ExListenerA implements ElectronsListener<EleEvent> {
 
     @Override

@@ -1,7 +1,6 @@
 package com.ziyuan.breaker;
 
 import com.ziyuan.ElectronsListener;
-import com.ziyuan.Listener;
 
 /**
  * DoubleEventlistener1
@@ -9,7 +8,7 @@ import com.ziyuan.Listener;
  * @author ziyuan
  * @since 2017-03-23
  */
-@Listener(subscribe = "breaker", after = "1")
+//@Listener(subscribe = "breaker", after = "1")
 public class DoubleEventlistener1 implements ElectronsListener<DoubleEvent> {
 
     @Override

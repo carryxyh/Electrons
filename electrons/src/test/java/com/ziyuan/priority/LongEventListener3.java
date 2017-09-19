@@ -1,7 +1,6 @@
 package com.ziyuan.priority;
 
 import com.ziyuan.ElectronsListener;
-import com.ziyuan.Listener;
 
 /**
  * LongEventListener3
@@ -9,7 +8,7 @@ import com.ziyuan.Listener;
  * @author ziyuan
  * @since 2017-03-20
  */
-@Listener(subscribe = "tag2", priority = 2)
+//@Listener(subscribe = "tag2", priority = 2)
 public class LongEventListener3 implements ElectronsListener<LongEvent2> {
 
     @Override

@@ -51,12 +51,9 @@ public abstract class AbstractChannel implements Channel {
      */
     protected RingBuffer<ElectronsHolder> buffer;
 
-    private static final EventTranslatorOneArg<ElectronsHolder, ElectronsHolder> TRANSLATOR_ONE_ARG = new EventTranslatorOneArg<ElectronsHolder, ElectronsHolder>() {
-        @Override
-        public void translateTo(ElectronsHolder event, long sequence, ElectronsHolder arg0) {
-            event.setListeners(arg0.getListeners());
-            event.setElectron(arg0.getElectron());
-        }
+    private static final EventTranslatorOneArg<ElectronsHolder, ElectronsHolder> TRANSLATOR_ONE_ARG = (event, sequence, arg0) -> {
+        event.setListeners(arg0.getListeners());
+        event.setElectron(arg0.getElectron());
     };
 
     public AbstractChannel(Disruptor<ElectronsHolder> disruptor) {

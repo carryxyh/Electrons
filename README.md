@@ -160,4 +160,4 @@ public @interface Listener {
 
 #### 关于<br/>
 [源码地址](https://github.com/carryxyh/Electrons)<br/>
-相关问题，二维火内部联系**紫苑**，非二维火同学联系我的邮箱：*ziyuan@2dfire.com*<br/>
+相关问题，二维火内部联系**紫苑**，非二维火同学联系我的邮箱：*carryxyh@gmail.com*<br/>

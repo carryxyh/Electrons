@@ -71,7 +71,7 @@ public class LongEventListener implements ElectronsListener<LongEvent> {
     }
 }
 ```
-`@Listener`注解用来标注监听器，类需要实现ElectronsListener接口，并且***切记加上泛型的限制***，否则会出问题！在OnEvent方法中实现处理事件的方法即可。<br/>
+`@Listener`注解用来标注监听器，类需要实现ElectronsListener接口，并且**切记加上泛型的限制**，否则会出问题！在OnEvent方法中实现处理事件的方法即可。<br/>
 
 再看一下`@Listener`注解，这个注解主要限定了一些Listener的属性值，先看一下`@Listener`：<br/>
 
